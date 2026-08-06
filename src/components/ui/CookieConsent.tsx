@@ -41,12 +41,10 @@ export default function CookieConsent() {
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                {t("cookieConsent.accept") === "cookieConsent.accept"
-                  ? "Cookie Preferences"
-                  : "Preferensi Cookie"}
+                {t("ui.cookiePreferences")}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                {t("cookieConsent.message")}
+                {t("ui.cookieMessage")}
               </p>
             </div>
           </div>
@@ -55,7 +53,7 @@ export default function CookieConsent() {
               onClick={handleAccept}
               className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors duration-200 shadow-md shadow-blue-500/20 active:scale-95"
             >
-              {t("cookieConsent.accept")}
+              {t("ui.cookieAccept")}
             </button>
           </div>
         </motion.div>

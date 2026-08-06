@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Sparkles, Check, X, Palette } from "lucide-react";
 import toast from "react-hot-toast";
 import NotificationModal from "@/components/ui/NotificationModal";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export interface AvatarConfig {
   bgColor: string;
@@ -41,8 +42,10 @@ export default function AvatarMakerModal({
   onClose,
   initialConfig,
   onSave,
-  title = "Kustomisasi Avatar Digital Anda",
+  title,
 }: AvatarMakerModalProps) {
+  const { t } = useLanguage();
+  const displayTitle = title || t("ui.avatarMakerTitle");
   const [config, setConfig] = useState<AvatarConfig>(() => {
     if (initialConfig) {
       try {
@@ -83,18 +86,16 @@ export default function AvatarMakerModal({
       setNotifModal({
         isOpen: true,
         type: "celebration",
-        title: "Avatar Baru Disimpan! ✨",
-        description:
-          "Karakter avatar kustom Anda telah berhasil diperbarui dan kini menjadi identitas di kelas digital LMS.",
-        badgeText: "Kustomisasi Sukses",
+        title: t("ui.avatarSavedTitle"),
+        description: t("ui.avatarSavedDesc"),
+        badgeText: t("ui.avatarSavedBadge"),
       });
     } catch {
       setNotifModal({
         isOpen: true,
         type: "error",
-        title: "Gagal Menyimpan Avatar ⚠️",
-        description:
-          "Terjadi kesalahan saat menyimpan konfigurasi avatar Anda ke server.",
+        title: t("ui.avatarFailedTitle"),
+        description: t("ui.avatarFailedDesc"),
       });
     } finally {
       setSaving(false);
@@ -107,7 +108,7 @@ export default function AvatarMakerModal({
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Palette className="w-5 h-5 text-[#ff385c]" />
-            <h3 className="text-lg font-bold text-[#222222]">{title}</h3>
+            <h3 className="text-lg font-bold text-[#222222]">{displayTitle}</h3>
           </div>
           <button
             onClick={onClose}
@@ -237,7 +238,7 @@ export default function AvatarMakerModal({
             </svg>
           </div>
           <span className="text-xs font-semibold text-[#6a6a6a] mt-3">
-            Pratinjau Avatar Live
+            {t("ui.liveAvatarPreview")}
           </span>
         </div>
 
@@ -246,7 +247,7 @@ export default function AvatarMakerModal({
           {/* Warna Latar */}
           <div>
             <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-2">
-              Warna Background
+              {t("ui.bgColor")}
             </label>
             <div className="flex items-center gap-2">
               {BG_COLORS.map((col) => (
@@ -274,15 +275,15 @@ export default function AvatarMakerModal({
           {/* Gaya Rambut */}
           <div>
             <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-2">
-              Gaya Rambut / Aksesori Kepala
+              {t("ui.hairStyle")}
             </label>
             <div className="grid grid-cols-5 gap-2">
               {[
-                { id: "short", label: "Pendek" },
-                { id: "spiky", label: "Spiky" },
-                { id: "long", label: "Panjang" },
-                { id: "bob", label: "Bob" },
-                { id: "headphone", label: "Headphone" },
+                { id: "short", label: t("ui.hairShort") },
+                { id: "spiky", label: t("ui.hairSpiky") },
+                { id: "long", label: t("ui.hairLong") },
+                { id: "bob", label: t("ui.hairBob") },
+                { id: "headphone", label: t("ui.hairHeadphone") },
               ].map((h) => (
                 <button
                   key={h.id}
@@ -308,14 +309,14 @@ export default function AvatarMakerModal({
           {/* Aksesori Wajah */}
           <div>
             <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-2">
-              Aksesori Tambahan
+              {t("ui.faceAccessory")}
             </label>
             <div className="grid grid-cols-4 gap-2">
               {[
-                { id: "none", label: "Tanpa Aksesori" },
-                { id: "glasses", label: "Kacamata" },
-                { id: "vr", label: "VR Goggles" },
-                { id: "star", label: "Bintang" },
+                { id: "none", label: t("ui.accNone") },
+                { id: "glasses", label: t("ui.accGlasses") },
+                { id: "vr", label: t("ui.accVR") },
+                { id: "star", label: t("ui.accStar") },
               ].map((a) => (
                 <button
                   key={a.id}
@@ -341,7 +342,7 @@ export default function AvatarMakerModal({
           {/* Tone Kulit */}
           <div>
             <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-2">
-              Warna Kulit
+              {t("ui.skinTone")}
             </label>
             <div className="flex items-center gap-2">
               {SKIN_TONES.map((tone) => (
@@ -374,7 +375,7 @@ export default function AvatarMakerModal({
             onClick={onClose}
             className="px-5 py-2.5 text-sm font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-lg"
           >
-            Batal
+            {t("ui.cancel")}
           </button>
           <button
             type="button"
@@ -382,7 +383,7 @@ export default function AvatarMakerModal({
             disabled={saving}
             className="px-6 py-2.5 text-sm font-semibold text-white bg-[#ff385c] hover:bg-[#e00b41] rounded-lg transition-colors cursor-pointer"
           >
-            {saving ? "Menyimpan..." : "Simpan Avatar Saya"}
+            {saving ? t("ui.saving") : t("ui.saveAvatar")}
           </button>
         </div>
       </div>
@@ -400,7 +401,7 @@ export default function AvatarMakerModal({
         title={notifModal.title}
         description={notifModal.description}
         badgeText={notifModal.badgeText}
-        primaryButtonText="Keren! Kembali ke Profil →"
+        primaryButtonText={t("ui.coolBackToProfile")}
         onPrimaryClick={() => {
           setNotifModal((prev) => ({ ...prev, isOpen: false }));
           if (notifModal.type === "celebration") {

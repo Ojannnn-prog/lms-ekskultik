@@ -24,6 +24,7 @@ import {
   updateAnnouncement,
   deleteAnnouncement,
 } from "./actions";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface Announcement {
   id: string;
@@ -34,6 +35,7 @@ interface Announcement {
 
 export default function AdminDashboardPage() {
   const { show } = useNotificationModal();
+  const { t } = useLanguage();
 
   const [stats, setStats] = useState<any>(null);
   const [attendances, setAttendances] = useState<any[]>([]);
@@ -74,7 +76,7 @@ export default function AdminDashboardPage() {
       setAttendances(data.todayAttendances);
       setAnnouncements(data.announcements as Announcement[]);
     } catch {
-      show({ type: 'error', title: 'Perhatian', description: `Gagal memuat data dasbor admin`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t('admin.attention'), description: t('admin.dashboardLoadError'), autoCloseDelay: 2500 });
     } finally {
       setLoading(false);
     }
@@ -96,13 +98,12 @@ export default function AdminDashboardPage() {
       setModalConfig({
         isOpen: true,
         type: "success",
-        title: "Pengumuman Berhasil Diterbitkan! 📢",
-        description:
-          "Pengumuman baru telah terbit dan langsung terlihat oleh seluruh Siswa dan Koordinator di dasbor mereka.",
-        badgeText: "Status: Resmi Dipublikasikan",
+        title: t('admin.announcementPublishSuccess'),
+        description: t('admin.announcementPublishDesc'),
+        badgeText: t('admin.statusPublished'),
       });
     } catch {
-      show({ type: 'error', title: 'Perhatian', description: `Gagal menerbitkan pengumuman`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t('admin.attention'), description: t('admin.announcementPublishError'), autoCloseDelay: 2500 });
     } finally {
       setSubmitting(false);
     }
@@ -124,12 +125,11 @@ export default function AdminDashboardPage() {
       setModalConfig({
         isOpen: true,
         type: "success",
-        title: "Pengumuman Diperbarui! ✨",
-        description:
-          "Perubahan pengumuman telah disimpan dan diperbarui pada tampilan dasbor siswa.",
+        title: t('admin.announcementUpdateSuccess'),
+        description: t('admin.announcementUpdateDesc'),
       });
     } catch {
-      show({ type: 'error', title: 'Perhatian', description: `Gagal memperbarui pengumuman`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t('admin.attention'), description: t('admin.announcementUpdateError'), autoCloseDelay: 2500 });
     }
   };
 
@@ -137,11 +137,11 @@ export default function AdminDashboardPage() {
     if (!deleteId) return;
     try {
       await deleteAnnouncement(deleteId);
-      show({ type: 'success', title: 'Berhasil', description: `Pengumuman berhasil dihapus`, autoCloseDelay: 1500 });
+      show({ type: 'success', title: t('admin.success'), description: t('admin.announcementDeleteSuccess'), autoCloseDelay: 1500 });
       setDeleteId(null);
       loadData();
     } catch {
-      show({ type: 'error', title: 'Perhatian', description: `Gagal menghapus pengumuman`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t('admin.attention'), description: t('admin.announcementDeleteError'), autoCloseDelay: 2500 });
     }
   };
 
@@ -160,20 +160,19 @@ export default function AdminDashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <span className="text-xs font-bold text-[#ff385c] uppercase tracking-wider block mb-1">
-              SDN 231 SUKAASIH • KELAS 5 & 6
+              {t('admin.schoolHeader')}
             </span>
             <h1 className="text-2xl sm:text-3xl font-bold text-[#222222]">
-              Dasbor Koordinator TIK
+              {t('admin.dashboardTitle')}
             </h1>
             <p className="text-sm text-[#6a6a6a] mt-1">
-              Pantau keaktifan siswa, progres pembelajaran LMS, dan kelola
-              pengumuman ekstrakurikuler.
+              {t('admin.dashboardSubtitle')}
             </p>
           </div>
           <div className="flex items-center gap-2 bg-[#f7f7f7] px-4 py-2.5 rounded-xl border border-[#ebebeb]">
             <TrendingUp className="w-5 h-5 text-[#ff385c]" />
             <div>
-              <p className="text-xs text-[#6a6a6a]">Tingkat Kehadiran Hari Ini</p>
+              <p className="text-xs text-[#6a6a6a]">{t('admin.attendanceRateToday')}</p>
               <p className="text-base font-bold text-[#222222]">
                 {stats?.todayAttendanceRate || 0}%
               </p>
@@ -187,7 +186,7 @@ export default function AdminDashboardPage() {
         <div className="bg-white border border-[#dddddd] rounded-xl p-5 airbnb-shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-              Total Siswa
+              {t('admin.totalStudents')}
             </span>
             <Users className="w-5 h-5 text-[#ff385c]" />
           </div>
@@ -195,7 +194,7 @@ export default function AdminDashboardPage() {
             {stats?.totalStudents || 0}
           </p>
           <p className="text-xs text-[#929292] mt-1">
-            Kelas 5: {stats?.studentsClass5 || 0} • Kelas 6:{" "}
+            {t('admin.class5')}: {stats?.studentsClass5 || 0} • {t('admin.class6')}:{" "}
             {stats?.studentsClass6 || 0}
           </p>
         </div>
@@ -203,7 +202,7 @@ export default function AdminDashboardPage() {
         <div className="bg-white border border-[#dddddd] rounded-xl p-5 airbnb-shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-              Modul Pelajaran
+              {t('admin.learningModules')}
             </span>
             <BookOpen className="w-5 h-5 text-[#ff385c]" />
           </div>
@@ -211,27 +210,27 @@ export default function AdminDashboardPage() {
             {stats?.totalResources || 0}
           </p>
           <p className="text-xs text-[#929292] mt-1">
-            Kurikulum Ekskul TIK Sukaasih
+            {t('admin.curriculumDesc')}
           </p>
         </div>
 
         <div className="bg-white border border-[#dddddd] rounded-xl p-5 airbnb-shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-              Pembina TIK
+              {t('admin.ictTutor')}
             </span>
             <UserCheck className="w-5 h-5 text-[#ff385c]" />
           </div>
           <p className="text-3xl font-bold text-[#222222]">
             {stats?.totalTeachers || 0}
           </p>
-          <p className="text-xs text-[#929292] mt-1">Wali Pengampu Kelas</p>
+          <p className="text-xs text-[#929292] mt-1">{t('admin.classGuardian')}</p>
         </div>
 
         <div className="bg-white border border-[#dddddd] rounded-xl p-5 airbnb-shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-              Hadir Hari Ini (WIB)
+              {t('admin.presentToday')}
             </span>
             <CheckCircle2 className="w-5 h-5 text-green-600" />
           </div>
@@ -239,7 +238,7 @@ export default function AdminDashboardPage() {
             {stats?.hadirCount || 0}
           </p>
           <p className="text-xs text-[#929292] mt-1">
-            Izin: {stats?.izinCount || 0} | Alpha: {stats?.alphaCount || 0}
+            {t('admin.izin')}: {stats?.izinCount || 0} | {t('admin.alpha')}: {stats?.alphaCount || 0}
           </p>
         </div>
       </div>
@@ -251,10 +250,10 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-[#222222] flex items-center gap-2">
               <Calendar className="w-5 h-5 text-[#ff385c]" />
-              <span>Aktivitas Kehadiran Hari Ini (WIB)</span>
+              <span>{t('admin.attendanceActivityToday')}</span>
             </h2>
             <span className="text-xs font-semibold bg-[#f7f7f7] text-[#6a6a6a] px-3 py-1 rounded-full border border-[#ebebeb]">
-              Reset 00:00 WIB
+              {t('admin.resetTime')}
             </span>
           </div>
 
@@ -262,10 +261,10 @@ export default function AdminDashboardPage() {
             <div className="text-center py-12 border border-dashed border-[#dddddd] rounded-xl">
               <Clock className="w-8 h-8 text-[#929292] mx-auto mb-2" />
               <p className="text-sm font-semibold text-[#6a6a6a]">
-                Belum ada siswa yang absen hari ini
+                {t('admin.noStudentsPresentToday')}
               </p>
               <p className="text-xs text-[#929292] mt-1">
-                Gunakan Scanner QR KTA untuk memulai presensi
+                {t('admin.useScannerPrompt')}
               </p>
             </div>
           ) : (
@@ -280,7 +279,7 @@ export default function AdminDashboardPage() {
                       {item.student.name}
                     </p>
                     <p className="text-xs text-[#6a6a6a]">
-                      NIS: {item.student.studentCode} • Kelas{" "}
+                      {t('admin.nis')}: {item.student.studentCode} • {t('admin.class')}{" "}
                       {item.student.classGroup}
                     </p>
                   </div>
@@ -294,7 +293,7 @@ export default function AdminDashboardPage() {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}{" "}
-                      WIB
+                      {t('admin.wib')}
                     </p>
                   </div>
                 </div>
@@ -308,12 +307,12 @@ export default function AdminDashboardPage() {
           <div>
             <h2 className="text-lg font-bold text-[#222222] mb-6 flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-[#ff385c]" />
-              <span>Pengumuman Global Ekskul TIK</span>
+              <span>{t('admin.globalAnnouncements')}</span>
             </h2>
 
             {announcements.length === 0 ? (
               <p className="text-sm text-[#6a6a6a] text-center py-8">
-                Belum ada pengumuman
+                {t('admin.noAnnouncements')}
               </p>
             ) : (
               <div className="space-y-3 max-h-60 overflow-y-auto mb-6 pr-1">
@@ -342,14 +341,14 @@ export default function AdminDashboardPage() {
                       <button
                         onClick={() => handleOpenEditModal(ann)}
                         className="text-[#6a6a6a] hover:text-[#222222] p-1.5 rounded-lg hover:bg-white transition-colors cursor-pointer"
-                        title="Edit pengumuman"
+                        title={t('admin.editAnnouncementTitle')}
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => setDeleteId(ann.id)}
                         className="text-[#929292] hover:text-[#c13515] p-1.5 rounded-lg hover:bg-white transition-colors cursor-pointer"
-                        title="Hapus pengumuman"
+                        title={t('admin.deleteAnnouncementTitle')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -366,20 +365,20 @@ export default function AdminDashboardPage() {
             className="border-t border-[#ebebeb] pt-4 space-y-3"
           >
             <h4 className="text-xs font-semibold text-[#222222] uppercase tracking-wider">
-              Buat Pengumuman Baru
+              {t('admin.createAnnouncement')}
             </h4>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Judul pengumuman (Contoh: Jadwal Ekskul TIK Minggu Ini)"
+              placeholder={t('admin.announcementTitlePlaceholder')}
               className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd] focus:bg-white focus:border-[#222222] focus:outline-none"
               required
             />
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Isi pengumuman lengkap..."
+              placeholder={t('admin.announcementContentPlaceholder')}
               rows={2}
               className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd] focus:bg-white focus:border-[#222222] focus:outline-none"
               required
@@ -391,7 +390,7 @@ export default function AdminDashboardPage() {
             >
               <Plus className="w-4 h-4" />
               <span>
-                {submitting ? "Menerbitkan..." : "Terbitkan Pengumuman"}
+                {submitting ? t('admin.publishing') : t('admin.publishAnnouncement')}
               </span>
             </button>
           </form>
@@ -404,7 +403,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-[#dddddd] airbnb-shadow">
             <div className="flex items-center justify-between pb-4 border-b border-[#ebebeb] mb-6">
               <h3 className="text-lg font-bold text-[#222222]">
-                Edit Pengumuman Ekskul TIK
+                {t('admin.editAnnouncement')}
               </h3>
               <button
                 onClick={() => setEditingAnn(null)}
@@ -416,7 +415,7 @@ export default function AdminDashboardPage() {
             <form onSubmit={handleSaveEditAnnouncement} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#222222] mb-1">
-                  Judul Pengumuman
+                  {t('admin.announcementTitleLabel')}
                 </label>
                 <input
                   type="text"
@@ -428,7 +427,7 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#222222] mb-1">
-                  Isi Pengumuman
+                  {t('admin.announcementContentLabel')}
                 </label>
                 <textarea
                   value={editContent}
@@ -444,13 +443,13 @@ export default function AdminDashboardPage() {
                   onClick={() => setEditingAnn(null)}
                   className="px-5 py-2.5 rounded-xl text-xs font-bold text-[#6a6a6a] hover:bg-[#f7f7f7]"
                 >
-                  Batal
+                  {t('admin.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2.5 rounded-xl text-xs font-bold bg-[#ff385c] hover:bg-[#e00b41] text-white transition-colors"
                 >
-                  Simpan Perubahan
+                  {t('admin.saveChanges')}
                 </button>
               </div>
             </form>
@@ -461,10 +460,10 @@ export default function AdminDashboardPage() {
       {/* MODAL KONFIRMASI HAPUS */}
       <ConfirmModal
         isOpen={!!deleteId}
-        title="Hapus Pengumuman?"
-        description="Pengumuman yang dihapus tidak dapat dikembalikan dan akan hilang dari dasbor seluruh siswa."
-        confirmText="Ya, Hapus"
-        cancelText="Batal"
+        title={t('admin.deleteAnnouncementConfirmTitle')}
+        description={t('admin.deleteAnnouncementConfirmDesc')}
+        confirmText={t('admin.yesDelete')}
+        cancelText={t('admin.cancel')}
         isDanger={true}
         onConfirm={confirmDeleteAnnouncement}
         onClose={() => setDeleteId(null)}
@@ -478,7 +477,7 @@ export default function AdminDashboardPage() {
         title={modalConfig.title}
         description={modalConfig.description}
         badgeText={modalConfig.badgeText}
-        primaryButtonText="Mengerti & Tutup"
+        primaryButtonText={t('admin.understandAndClose')}
         onPrimaryClick={() =>
           setModalConfig((prev) => ({ ...prev, isOpen: false }))
         }
@@ -486,3 +485,4 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+

@@ -19,6 +19,7 @@ import {
 import { useNotificationModal } from "@/providers/NotificationProvider";
 import SmartEmbedViewer from "@/components/ui/SmartEmbedViewer";
 import NotificationModal from "@/components/ui/NotificationModal";
+import { useLanguage } from "@/providers/LanguageProvider";
 import {
   getCourseResourceDetail,
   submitQuizAttempt,
@@ -35,6 +36,7 @@ interface QuizConfig {
 }
 
 export default function StudentCourseDetailPage() {
+  const { t } = useLanguage();
   const { show } = useNotificationModal();
 
   const params = useParams();
@@ -86,7 +88,7 @@ export default function StudentCourseDetailPage() {
         setIsCompleted(res.isCompleted);
       })
       .catch((err) => {
-        show({ type: 'error', title: 'Perhatian', description: `Materi tidak ditemukan`, autoCloseDelay: 2500 });
+        show({ type: 'error', title: t('student.attention'), description: t('student.resourceNotFound'), autoCloseDelay: 2500 });
         router.push("/student/course");
       })
       .finally(() => setLoading(false));
@@ -110,8 +112,8 @@ export default function StudentCourseDetailPage() {
     if (countdown > 0) {
       show({
         type: 'error',
-        title: 'Perhatian',
-        description: `Tunggu ${formatCountdown(countdown)} menit sebelum menyelesaikan modul`,
+        title: t('student.attention'),
+        description: t('student.waitBeforeComplete', { minutes: formatCountdown(countdown) }),
         autoCloseDelay: 2500
       });
       return;
@@ -124,12 +126,12 @@ export default function StudentCourseDetailPage() {
         setModalConfig({
           isOpen: true,
           type: "info",
-          title: "Modul Sudah Selesai 📚",
+          title: t("student.moduleAlreadyCompletedTitle"),
           description:
-            "Kamu telah menyelesaikan modul materi pembelajaran ini sebelumnya.",
-          primaryButtonText: "Kembali ke Daftar Materi",
+            t("student.moduleAlreadyCompletedDesc"),
+          primaryButtonText: t("student.backToCourseList"),
           onPrimaryClick: () => router.push("/student/course"),
-          secondaryButtonText: "Tutup",
+          secondaryButtonText: t("student.close"),
           onSecondaryClick: () =>
             setModalConfig((prev) => ({ ...prev, isOpen: false })),
         });
@@ -137,21 +139,21 @@ export default function StudentCourseDetailPage() {
         setModalConfig({
           isOpen: true,
           type: "reward",
-          title: "Modul Berhasil Diselesaikan! 🎉",
+          title: t("student.moduleCompletedSuccessTitle"),
           description:
-            "Selamat! Kamu telah menuntaskan mempelajari materi ini dan berhak mendapatkan hadiah poin gamifikasi.",
-          badgeText: `+${res.pointsEarned} Poin Gamifikasi Diberikan${
-            res.newTitleUnlocked ? ` • Gelar: ${res.newTitleUnlocked}` : ""
+            t("student.moduleCompletedSuccessDesc"),
+          badgeText: `${res.pointsEarned} ${t("student.pointsAwarded")}${
+            res.newTitleUnlocked ? ` • ${t("student.titleGranted")} ${res.newTitleUnlocked}` : ""
           }`,
-          primaryButtonText: "Kembali ke Daftar Materi",
+          primaryButtonText: t("student.backToCourseList"),
           onPrimaryClick: () => router.push("/student/course"),
-          secondaryButtonText: "Tetap di Materi Ini",
+          secondaryButtonText: t("student.stayOnMaterial"),
           onSecondaryClick: () =>
             setModalConfig((prev) => ({ ...prev, isOpen: false })),
         });
       }
     } catch {
-      show({ type: 'error', title: 'Perhatian', description: `Gagal menyimpan progress penyelesaian`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t('student.attention'), description: t('student.failedToSaveProgress'), autoCloseDelay: 2500 });
     } finally {
       setIsMarkingCompleted(false);
     }
@@ -160,7 +162,7 @@ export default function StudentCourseDetailPage() {
   const handleQuizSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedAnswer) {
-      show({ type: 'error', title: 'Perhatian', description: `Pilih salah satu opsi jawaban (A, B, C, atau D)`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t('student.attention'), description: t('student.selectAnswerOption'), autoCloseDelay: 2500 });
       return;
     }
 
@@ -174,15 +176,15 @@ export default function StudentCourseDetailPage() {
         setModalConfig({
           isOpen: true,
           type: "celebration",
-          title: "Jawaban Kamu Benar! 🌟",
+          title: t("student.correctAnswerTitle"),
           description:
-            "Luar biasa! Pemahamanmu mengenai materi modul ini sangat tepat dan akurat.",
-          badgeText: `+${res.pointsEarned} Poin Hadiah Kuis${
-            res.newTitleUnlocked ? ` • Gelar: ${res.newTitleUnlocked}` : ""
+            t("student.correctAnswerDesc"),
+          badgeText: `+${res.pointsEarned} ${t("student.quizPointsAwarded")}${
+            res.newTitleUnlocked ? ` • ${t("student.titleGranted")} ${res.newTitleUnlocked}` : ""
           }`,
-          primaryButtonText: "Lihat Peringkat & Gelar Saya",
+          primaryButtonText: t("student.viewRankAndTitle"),
           onPrimaryClick: () => router.push("/student/gamification"),
-          secondaryButtonText: "Tutup",
+          secondaryButtonText: t("student.close"),
           onSecondaryClick: () =>
             setModalConfig((prev) => ({ ...prev, isOpen: false })),
         });
@@ -190,16 +192,16 @@ export default function StudentCourseDetailPage() {
         setModalConfig({
           isOpen: true,
           type: "error",
-          title: "Jawaban Belum Tepat 🤔",
+          title: t("student.wrongAnswerTitle"),
           description:
-            "Jangan menyerah! Coba baca kembali artikel materi di atas dengan teliti, lalu pilih jawaban lain yang paling tepat.",
-          primaryButtonText: "Coba Lagi",
+            t("student.wrongAnswerDesc"),
+          primaryButtonText: t("student.tryAgain"),
           onPrimaryClick: () =>
             setModalConfig((prev) => ({ ...prev, isOpen: false })),
         });
       }
     } catch {
-      show({ type: 'error', title: 'Perhatian', description: `Gagal mengirim jawaban kuis`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t('student.attention'), description: t('student.failedToSubmitQuiz'), autoCloseDelay: 2500 });
     } finally {
       setSubmittingQuiz(false);
     }
@@ -231,7 +233,7 @@ export default function StudentCourseDetailPage() {
           className="inline-flex items-center gap-2 text-sm font-semibold text-[#6a6a6a] hover:text-[#222222] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Daftar Materi</span>
+          <span>{t("student.backToCourseList")}</span>
         </Link>
         <span className="text-xs font-semibold bg-[#f7f7f7] text-[#222222] px-3.5 py-1 rounded-full border border-[#ebebeb]">
           {resource.category}
@@ -244,19 +246,19 @@ export default function StudentCourseDetailPage() {
           <div className="inline-flex items-center gap-1.5 bg-[#f7f7f7] px-3 py-1 rounded-full border border-[#ebebeb]">
             <Sparkles className="w-3.5 h-3.5 text-[#ff385c]" />
             <span className="text-xs font-semibold text-[#222222]">
-              Tipe: {resource.type}
+              {t("student.type")} {resource.type}
             </span>
           </div>
 
           {isCompleted ? (
             <span className="inline-flex items-center gap-1 text-xs font-bold bg-green-100 text-green-800 px-3 py-1.5 rounded-full">
               <CheckCircle2 className="w-4 h-4" />
-              <span>Modul Selesai</span>
+              <span>{t("student.moduleFinished")}</span>
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 text-xs font-bold bg-amber-50 text-amber-800 px-3 py-1.5 rounded-full border border-amber-200">
               <Award className="w-4 h-4 text-amber-600" />
-              <span>+{resource.pointsReward} Poin Gamifikasi</span>
+              <span>+{resource.pointsReward} {t("student.gamificationPoints")}</span>
             </span>
           )}
         </div>
@@ -276,7 +278,7 @@ export default function StudentCourseDetailPage() {
       <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#dddddd] airbnb-shadow-sm space-y-6">
         <h2 className="text-lg font-bold text-[#222222] border-b border-[#ebebeb] pb-3 flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-[#ff385c]" />
-          <span>Materi Pembelajaran</span>
+          <span>{t("student.learningMaterial")}</span>
         </h2>
         {/* RENDER MATERI SECARA PINTAR & RESPONSIF (GOOGLE DRIVE, YOUTUBE, PDF, DOKUMEN) */}
         {resource.fileUrl ? (
@@ -298,7 +300,7 @@ export default function StudentCourseDetailPage() {
           <div className="prose max-w-none text-[#222222] leading-relaxed whitespace-pre-wrap bg-[#f7f7f7] p-6 rounded-2xl border border-[#ebebeb]">
             {resource.content ||
               resource.description ||
-              "Tidak ada detail materi tambahan."}
+              t("student.noAdditionalDetails")}
           </div>
         )}
       </div>
@@ -310,11 +312,11 @@ export default function StudentCourseDetailPage() {
             <div className="flex items-center gap-2">
               <HelpCircle className="w-6 h-6 text-[#ff385c]" />
               <h2 className="text-xl font-bold text-[#222222]">
-                Kuis Interaktif Modul
+                {t("student.interactiveQuiz")}
               </h2>
             </div>
             <span className="text-xs font-bold bg-[#ff385c] text-white px-3 py-1 rounded-full">
-              +{resource.pointsReward} Poin Gamifikasi
+              +{resource.pointsReward} {t("student.gamificationPoints")}
             </span>
           </div>
 
@@ -370,7 +372,7 @@ export default function StudentCourseDetailPage() {
                 disabled={submittingQuiz || !selectedAnswer}
                 className="bg-[#ff385c] hover:bg-[#e00b41] text-white font-bold text-sm px-8 py-4 rounded-xl transition-colors airbnb-shadow disabled:opacity-50 cursor-pointer"
               >
-                {submittingQuiz ? "Memeriksa..." : "Kirim Jawaban Kuis"}
+                {submittingQuiz ? t("student.checking") : t("student.submitQuiz")}
               </button>
             </div>
           </form>
@@ -389,20 +391,20 @@ export default function StudentCourseDetailPage() {
                   <CheckCircle2 className="w-7 h-7 text-green-600 shrink-0" />
                   <div>
                     <h3 className="text-lg font-bold">
-                      Selamat! Jawaban Kamu Benar! 🎉
+                      {t("student.quizSuccess")}
                     </h3>
                     <p className="text-sm mt-1">
-                      Kamu mendapatkan{" "}
+                      {t("student.youGot")}{" "}
                       <strong className="text-green-800">
-                        +{quizResult.pointsEarned} Poin
+                        +{quizResult.pointsEarned} {t("student.points")}
                       </strong>{" "}
-                      hadiah dan menyelesaikan modul ini!
+                      {t("student.rewardAndCompleted")}
                     </p>
                     {quizResult.newTitleUnlocked && (
                       <div className="mt-3 inline-flex items-center gap-1.5 bg-green-200 text-green-900 px-3.5 py-1.5 rounded-full text-xs font-bold">
                         <Award className="w-4 h-4" />
                         <span>
-                          Gelar Baru Terbuka: {quizResult.newTitleUnlocked}!
+                          {t("student.newTitleUnlocked")} {quizResult.newTitleUnlocked}!
                         </span>
                       </div>
                     )}
@@ -413,7 +415,7 @@ export default function StudentCourseDetailPage() {
                   <AlertCircle className="w-7 h-7 text-red-600 shrink-0" />
                   <div>
                     <h3 className="text-base font-bold">
-                      Jawaban Masih Belum Tepat
+                      {t("student.answerStillWrong")}
                     </h3>
                     <p className="text-sm mt-0.5">
                       Jangan menyerah! Baca kembali materi di atas dan cobalah
@@ -450,21 +452,21 @@ export default function StudentCourseDetailPage() {
           <div>
             <h3 className="text-lg font-bold text-[#222222]">
               {isCompleted
-                ? "Modul Telah Diselesaikan!"
+                ? t("student.moduleHasBeenCompleted")
                 : countdown > 0
-                ? "Pelajari Materi Terlebih Dahulu"
-                : "Modul Siap Ditandai Selesai!"}
+                ? t("student.studyMaterialFirst")
+                : t("student.moduleReadyToComplete")}
             </h3>
             <p className="text-sm text-[#6a6a6a] mt-0.5">
               {isCompleted
-                ? "Kamu telah menyelesaikan materi ini dan mendapatkan poin hadiah."
+                ? t("student.completedDesc")
                 : countdown > 0
-                ? `Tunggu ${formatCountdown(
+                ? t("student.waitToCompleteDesc", { time: formatCountdown(
                     countdown
-                  )} menit sebelum kamu dapat menekan tombol selesai dan mendapatkan poin.`
-                : `Klik tombol di sebelah kanan untuk menyelesaikan modul dan mengklaim +${
+                  ) })
+                : t("student.clickToCompleteDesc", { points: 
                     resource.pointsReward
-                  } Poin Gamifikasi.`}
+                   })}
             </p>
           </div>
         </div>
@@ -473,7 +475,7 @@ export default function StudentCourseDetailPage() {
           {isCompleted ? (
             <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-green-50 border border-green-200 text-green-800 font-bold text-sm">
               <CheckCircle2 className="w-5 h-5" />
-              <span>Selesai & Lulus</span>
+              <span>{t("student.finishedAndPassed")}</span>
             </div>
           ) : (
             <button
@@ -489,15 +491,15 @@ export default function StudentCourseDetailPage() {
               {countdown > 0 ? (
                 <>
                   <Clock className="w-4 h-4" />
-                  <span>Selesai & Tandai ({formatCountdown(countdown)})</span>
+                  <span>{t("student.finishAndMark")} ({formatCountdown(countdown)})</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
                   <span>
                     {isMarkingCompleted
-                      ? "Menyimpan..."
-                      : `Selesai & Tandai (+${resource.pointsReward} Poin)`}
+                      ? t("student.saving")
+                      : `${t("student.finishAndMark")} (+${resource.pointsReward} ${t("student.points")})`}
                   </span>
                 </>
               )}

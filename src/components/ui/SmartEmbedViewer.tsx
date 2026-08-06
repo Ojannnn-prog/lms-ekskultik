@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { parseSmartEmbedUrl, SmartEmbedInfo } from "@/lib/smartEmbed";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface SmartEmbedViewerProps {
   url: string;
@@ -31,6 +32,7 @@ export default function SmartEmbedViewer({
   type,
   compact = false,
 }: SmartEmbedViewerProps) {
+  const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -46,7 +48,7 @@ export default function SmartEmbedViewer({
   const handleCopyLink = () => {
     navigator.clipboard.writeText(embedInfo.viewUrl);
     setCopied(true);
-    toast.success("Tautan sharing berhasil disalin!");
+    toast.success(t("ui.copyLinkSuccess"));
     setTimeout(() => setCopied(false), 2500);
   };
 
@@ -82,7 +84,7 @@ export default function SmartEmbedViewer({
           </span>
           <h3 className="text-lg font-bold text-[#222222]">{title}</h3>
           <p className="text-xs text-[#6a6a6a] max-w-md mx-auto mt-1">
-            Materi ini diakses melalui tautan eksternal langsung. Silakan klik tombol di bawah untuk membuka halaman pada tab baru.
+            {t("ui.externalLinkInfo")}
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -92,7 +94,7 @@ export default function SmartEmbedViewer({
             rel="noopener noreferrer"
             className="bg-[#ff385c] hover:bg-[#e00b41] text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors airbnb-shadow-sm inline-flex items-center gap-2 cursor-pointer"
           >
-            <span>Buka Tautan Materi Sekarang</span>
+            <span>{t("ui.openLinkNow")}</span>
             <ExternalLink className="w-4 h-4" />
           </a>
           <button
@@ -100,7 +102,7 @@ export default function SmartEmbedViewer({
             className="bg-white hover:bg-[#ebebeb] text-[#222222] font-semibold text-xs px-4 py-3 rounded-xl border border-[#dddddd] transition-colors inline-flex items-center gap-1.5 cursor-pointer"
           >
             {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-            <span>{copied ? "Tersalin" : "Salin Link"}</span>
+            <span>{copied ? t("ui.copied") : t("ui.copyLink")}</span>
           </button>
         </div>
       </div>
@@ -141,7 +143,7 @@ export default function SmartEmbedViewer({
               <Copy className="w-3.5 h-3.5" />
             )}
             <span className="hidden xs:inline">
-              {copied ? "Tersalin" : "Salin"}
+              {copied ? t("ui.copied") : t("ui.copy")}
             </span>
           </button>
 
@@ -155,7 +157,7 @@ export default function SmartEmbedViewer({
               title="Unduh File Langsung dari Google Drive"
             >
               <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Unduh</span>
+              <span className="hidden sm:inline">{t("ui.download")}</span>
             </a>
           )}
 
@@ -173,7 +175,7 @@ export default function SmartEmbedViewer({
                 <Maximize2 className="w-3.5 h-3.5" />
               )}
               <span className="hidden md:inline">
-                {isExpanded ? "Normal" : "Perluas"}
+                {isExpanded ? t("ui.normal") : t("ui.expand")}
               </span>
             </button>
           )}
@@ -186,7 +188,7 @@ export default function SmartEmbedViewer({
             className="px-3.5 py-2 text-xs font-bold text-white bg-[#ff385c] hover:bg-[#e00b41] rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer airbnb-shadow-sm"
             title="Buka langsung di Google Drive / YouTube App"
           >
-            <span>Buka di App / Tab Baru</span>
+            <span>{t("ui.openInApp")}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
@@ -207,7 +209,7 @@ export default function SmartEmbedViewer({
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#f7f7f7] z-10 gap-3">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#ff385c]" />
             <p className="text-xs font-semibold text-[#6a6a6a]">
-              Memuat file dokumen {embedInfo.label}...
+              {t("ui.loadingFile", { label: embedInfo.label })}
             </p>
           </div>
         )}

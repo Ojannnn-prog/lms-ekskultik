@@ -69,7 +69,7 @@ export default function StudentDashboardPage() {
           })),
         });
       })
-      .catch(() => show({ type: 'error', title: 'Perhatian', description: `Gagal memuat dasbor siswa`, autoCloseDelay: 2500 }))
+      .catch(() => show({ type: 'error', title: t('student.attention'), description: t('student.fetchError'), autoCloseDelay: 2500 }))
       .finally(() => setLoading(false));
   }, []);
 
@@ -90,13 +90,13 @@ export default function StudentDashboardPage() {
         <div>
           <div className="inline-flex items-center gap-2 bg-white px-3 py-1 rounded-full mb-3 border border-[#dddddd] text-xs font-semibold text-[#222222]">
             <Sparkles className="w-3.5 h-3.5 text-[#ff385c]" />
-            <span>Siswa Ekskul TIK • Kelas {student?.classGroup}</span>
+            <span>{t("student.studentEkskulClass", { class: student?.classGroup || "" })}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-[#222222] tracking-tight mb-2">
             {t("studentDashboard.welcome")}, {student?.name}! 👋
           </h1>
           <p className="text-sm text-[#6a6a6a] max-w-xl">
-            {t("studentDashboard.title")} SDN 231 Sukaasih. Gunakan KTA QR Code untuk presensi dan tingkatkan poin gamifikasimu!
+            {t("student.heroDescription")}
           </p>
         </div>
 
@@ -107,7 +107,7 @@ export default function StudentDashboardPage() {
             className="w-full md:w-auto bg-[#ff385c] hover:bg-[#e00b41] text-white font-bold text-sm px-6 py-4 rounded-xl transition-colors airbnb-shadow flex items-center justify-center gap-3 cursor-pointer"
           >
             <QrCode className="w-5 h-5" />
-            <span>Buka KTA Digital QR Code</span>
+            <span>{t("student.openQR")}</span>
           </button>
         </div>
       </div>
@@ -118,20 +118,20 @@ export default function StudentDashboardPage() {
         <div className="bg-white border border-[#dddddd] rounded-2xl p-6 airbnb-shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-              Poin Gamifikasi
+              {t("student.gamificationPoints")}
             </span>
             <p className="text-3xl font-bold text-[#ff385c] mt-1">
-              {student?.points || 0} Poin
+              {student?.points || 0} {t("student.points")}
             </p>
             <p className="text-xs font-bold text-[#222222] mt-1 flex items-center gap-1">
               <Award className="w-3.5 h-3.5 text-[#ff385c]" />
-              <span>{student?.activeTitle || "Jagoan Digital"}</span>
+              <span>{student?.activeTitle || t("student.digitalHero")}</span>
             </p>
           </div>
           <Link
             href="/student/gamification"
             className="p-3 bg-[#f7f7f7] hover:bg-[#ebebeb] rounded-xl text-[#222222] transition-colors"
-            title="Lihat Peringkat"
+            title={t("student.viewLeaderboard")}
           >
             <Award className="w-6 h-6 text-[#ff385c]" />
           </Link>
@@ -141,15 +141,15 @@ export default function StudentDashboardPage() {
         <div className="bg-white border border-[#dddddd] rounded-2xl p-6 airbnb-shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-              Presensi Hari Ini (WIB)
+              {t("student.todayAttendance")}
             </span>
             <p className="text-2xl font-bold text-[#222222] mt-1">
-              {data?.todayStatus || "Belum Absen"}
+              {data?.todayStatus || t("student.notYetAttended")}
             </p>
             <p className="text-xs text-[#6a6a6a] mt-1">
               {data?.todayStatus === "Hadir"
-                ? "Kehadiran tercatat (+10 Poin)"
-                : "Scan KTA QR Anda pada scanner"}
+                ? t("student.attendanceRecorded")
+                : t("student.scanQR")}
             </p>
           </div>
           <div
@@ -167,11 +167,11 @@ export default function StudentDashboardPage() {
         <div className="bg-white border border-[#dddddd] rounded-2xl p-6 airbnb-shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-              Progres Modul TIK
+              {t("student.moduleProgress")}
             </span>
             <p className="text-2xl font-bold text-[#222222] mt-1">
               {data?.progressStats.completedCount} /{" "}
-              {data?.progressStats.totalResources} Modul
+              {data?.progressStats.totalResources} {t("student.module")}
             </p>
             <div className="w-32 bg-[#ebebeb] h-2 rounded-full mt-2 overflow-hidden">
               <div
@@ -183,7 +183,7 @@ export default function StudentDashboardPage() {
           <Link
             href="/student/course"
             className="p-3 bg-[#f7f7f7] hover:bg-[#ebebeb] rounded-xl text-[#222222] transition-colors"
-            title="Buka Portal Belajar"
+            title={t("student.openPortal")}
           >
             <BookOpen className="w-6 h-6 text-[#ff385c]" />
           </Link>
@@ -198,23 +198,21 @@ export default function StudentDashboardPage() {
             <div className="inline-flex items-center gap-1.5 bg-[#f7f7f7] px-3 py-1 rounded-full mb-3 border border-[#ebebeb]">
               <BookOpen className="w-3.5 h-3.5 text-[#ff385c]" />
               <span className="text-xs font-semibold text-[#222222]">
-                LMS Core • Kurikulum Ekskul
+                {t("student.lmsCoreCurriculum")}
               </span>
             </div>
             <h2 className="text-xl font-bold text-[#222222] mb-2">
-              Jelajahi Modul & Kuis Interaktif
+              {t("student.exploreModules")}
             </h2>
             <p className="text-sm text-[#6a6a6a] leading-relaxed mb-6">
-              Pelajari materi seperti Pengenalan Hardware, Scratch Block Coding,
-              Internet Sehat, dan Desain Grafis. Selesaikan kuis untuk
-              mendapatkan bonus poin hadiah!
+              {t("student.exploreModulesDesc")}
             </p>
           </div>
           <Link
             href="/student/course"
             className="bg-[#222222] hover:bg-[#ff385c] text-white font-semibold text-sm px-6 py-3.5 rounded-xl transition-colors inline-flex items-center justify-between group"
           >
-            <span>Masuk ke Portal Belajar TIK</span>
+            <span>{t("student.enterLearningPortal")}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -223,12 +221,12 @@ export default function StudentDashboardPage() {
         <div className="bg-white border border-[#dddddd] rounded-2xl p-6 airbnb-shadow-sm">
           <h2 className="text-lg font-bold text-[#222222] mb-6 flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-[#ff385c]" />
-            <span>Pengumuman dari Koordinator</span>
+            <span>{t("student.announcementsTitle")}</span>
           </h2>
 
           {!data?.announcements || data.announcements.length === 0 ? (
             <p className="text-sm text-[#6a6a6a] text-center py-12">
-              Belum ada pengumuman
+              {t("student.noAnnouncements")}
             </p>
           ) : (
             <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
@@ -260,7 +258,7 @@ export default function StudentDashboardPage() {
                         {ann.title}
                       </h3>
                       <span className="text-[10px] font-semibold text-[#ff385c] bg-[#fff8f6] px-2 py-0.5 rounded-full border border-[#ffe5ed]">
-                        Baca Detail →
+                        {t("student.readDetail")}
                       </span>
                     </div>
                     <p className="text-xs text-[#3f3f3f] mt-1.5 leading-relaxed line-clamp-2">
@@ -298,12 +296,12 @@ export default function StudentDashboardPage() {
         isOpen={!!selectedAnnouncement}
         onClose={() => setSelectedAnnouncement(null)}
         type="info"
-        title={selectedAnnouncement?.title || "Pengumuman"}
+        title={selectedAnnouncement?.title || t("student.announcement")}
         description={selectedAnnouncement?.content || ""}
-        badgeText={`Diterbitkan: ${
+        badgeText={`${t("student.published")} ${
           selectedAnnouncement?.date || ""
-        } • Koordinator Ekskul TIK`}
-        primaryButtonText="Mengerti & Tutup"
+        } ${t("student.coordinator")}`}
+        primaryButtonText={t("student.understandAndClose")}
         onPrimaryClick={() => setSelectedAnnouncement(null)}
       />
     </div>

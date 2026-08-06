@@ -15,6 +15,7 @@ import {
   HardDrive,
 } from "lucide-react";
 import { useNotificationModal } from "@/providers/NotificationProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import NotificationModal from "@/components/ui/NotificationModal";
 import SmartEmbedViewer from "@/components/ui/SmartEmbedViewer";
@@ -43,6 +44,7 @@ interface CourseItem {
 }
 
 export default function AdminResourcesPage() {
+  const { t } = useLanguage();
   const { show } = useNotificationModal();
 
   const [resources, setResources] = useState<any[]>([]);
@@ -197,9 +199,9 @@ export default function AdminResourcesPage() {
         setNotifModal({
           isOpen: true,
           type: "success",
-          title: "Materi TIK Diperbarui! 📚",
-          description: `Materi "${title}" berhasil diperbarui dalam kurikulum LMS sekolah.`,
-          badgeText: `Kategori: ${category}`,
+          title: t("admin.resources.resourceUpdated"),
+          description: `${t("admin.resources.resource")} "${title}" ${t("admin.resources.updatedSuccess")}`,
+          badgeText: `${t("admin.resources.categoryPrefix")}: ${category}`,
         });
       } else {
         await createCourseResource({
@@ -215,9 +217,9 @@ export default function AdminResourcesPage() {
         setNotifModal({
           isOpen: true,
           type: "success",
-          title: "Materi TIK Baru Ditambahkan! 🚀",
-          description: `Modul materi "${title}" siap diakses dan dipelajari oleh siswa.`,
-          badgeText: `Hadiah: +${pointsReward} Poin`,
+          title: t("admin.resources.resourceAdded"),
+          description: `${t("admin.resources.module")} "${title}" ${t("admin.resources.readyToAccess")}`,
+          badgeText: `${t("admin.resources.rewardPrefix")}: +${pointsReward} ${t("admin.resources.points")}`,
         });
       }
       setIsModalOpen(false);
@@ -226,9 +228,9 @@ export default function AdminResourcesPage() {
       setNotifModal({
         isOpen: true,
         type: "error",
-        title: "Gagal Menyimpan Materi ⚠️",
+        title: t("admin.resources.failedSave"),
         description:
-          "Terjadi kesalahan saat menyimpan materi TIK. Silakan coba kembali.",
+          t("admin.resources.failedSaveDesc"),
       });
     }
   };
@@ -247,17 +249,17 @@ export default function AdminResourcesPage() {
       setNotifModal({
         isOpen: true,
         type: "success",
-        title: "Materi TIK Dihapus 🗑️",
+        title: t("admin.resources.resourceDeleted"),
         description:
-          "Materi pelajaran telah resmi dihapus dari kurikulum LMS sekolah.",
+          t("admin.resources.resourceDeletedDesc"),
       });
     } catch {
       setNotifModal({
         isOpen: true,
         type: "error",
-        title: "Gagal Menghapus Materi ⚠️",
+        title: t("admin.resources.failedDelete"),
         description:
-          "Terjadi kesalahan saat mencoba menghapus materi TIK ini.",
+          t("admin.resources.failedDeleteDesc"),
       });
     }
   };
@@ -294,7 +296,7 @@ export default function AdminResourcesPage() {
           className="bg-[#ff385c] hover:bg-[#e00b41] text-white font-semibold text-sm px-5 py-3 rounded-lg transition-colors airbnb-shadow-sm flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
-          <span>Tambah Materi TIK</span>
+          <span>{t("admin.resources.addResourceBtn")}</span>
         </button>
       </div>
 
@@ -314,7 +316,7 @@ export default function AdminResourcesPage() {
             className="bg-[#ff385c] hover:bg-[#e00b41] text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors inline-flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Tambah Materi Pertama</span>
+            <span>{t("admin.resources.addFirstResourceBtn")}</span>
           </button>
         </div>
       ) : (
@@ -353,7 +355,7 @@ export default function AdminResourcesPage() {
                   <span className="font-medium">{item.type}</span>
                   <span>•</span>
                   <span>
-                    {item.quizConfig ? "Terdapat Kuis A-D" : "Tanpa Kuis"}
+                    {item.quizConfig ? t("admin.resources.hasQuiz") : t("admin.resources.noQuiz")}
                   </span>
                 </div>
               </div>
@@ -366,14 +368,14 @@ export default function AdminResourcesPage() {
                   <button
                     onClick={() => openEditModal(item)}
                     className="p-2 text-[#6a6a6a] hover:text-[#222222] hover:bg-[#f7f7f7] rounded-lg transition-colors cursor-pointer"
-                    title="Edit Materi"
+                    title={t("admin.resources.editResourceTooltip")}
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => confirmDelete(item.id)}
                     className="p-2 text-[#6a6a6a] hover:text-[#c13515] hover:bg-[#ffd1da]/30 rounded-lg transition-colors cursor-pointer"
-                    title="Hapus Materi"
+                    title={t("admin.resources.deleteResourceTooltip")}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -390,7 +392,7 @@ export default function AdminResourcesPage() {
           <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-[#dddddd] airbnb-shadow my-8">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-[#222222]">
-                {editingId ? "Edit Materi TIK" : "Tambah Materi TIK Baru"}
+                {editingId ? t("admin.resources.editResourceModalTitle") : t("admin.resources.addResourceModalTitle")}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -410,7 +412,7 @@ export default function AdminResourcesPage() {
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Contoh: Pengenalan Scratch Coding"
+                    placeholder={t("admin.resources.moduleTitlePlaceholder")}
                     className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd] focus:bg-white focus:border-[#222222] focus:outline-none"
                     required
                   />
@@ -474,7 +476,7 @@ export default function AdminResourcesPage() {
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Ringkasan tentang modul ini..."
+                  placeholder={t("admin.resources.descPlaceholder")}
                   className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd] focus:bg-white focus:border-[#222222] focus:outline-none"
                 />
               </div>
@@ -487,7 +489,7 @@ export default function AdminResourcesPage() {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   rows={4}
-                  placeholder="Tulis materi atau instruksi pembelajaran TIK untuk siswa..."
+                  placeholder={t("admin.resources.contentPlaceholder")}
                   className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd] focus:bg-white focus:border-[#222222] focus:outline-none"
                   required
                 />
@@ -502,11 +504,11 @@ export default function AdminResourcesPage() {
                   type="text"
                   value={fileUrl}
                   onChange={(e) => setFileUrl(e.target.value)}
-                  placeholder="Tempel link Google Drive (PDF, Docs, Slides, Sheets) atau YouTube... (otomatis dikonversi ke Embed)"
+                  placeholder={t("admin.resources.urlPlaceholder")}
                   className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd] focus:bg-white focus:border-[#ff385c] focus:outline-none"
                 />
                 <p className="text-[11px] text-[#6a6a6a] leading-normal">
-                  💡 <span className="font-semibold text-[#222222]">Fitur Pintar:</span> Mendukung link sharing Google Drive, Google Docs, Slides, Sheets, maupun YouTube. Sistem otomatis mengonversi link menjadi tampilan Embed yang responsif di HP/Desktop siswa.
+                  💡 <span className="font-semibold text-[#222222]">{t("admin.resources.smartFeatureTitle")}</span> {t("admin.resources.smartFeatureDesc")}
                 </p>
 
                 {/* Live Mini Preview di Modal Admin */}
@@ -517,7 +519,7 @@ export default function AdminResourcesPage() {
                     </p>
                     <SmartEmbedViewer
                       url={fileUrl}
-                      title={title || "Preview Materi"}
+                      title={title || t("admin.resources.previewFallback")}
                       type={type}
                       compact={true}
                     />
@@ -550,7 +552,7 @@ export default function AdminResourcesPage() {
                         type="text"
                         value={quizQuestion}
                         onChange={(e) => setQuizQuestion(e.target.value)}
-                        placeholder="Contoh: Apa fungsi utama dari monitor komputer?"
+                        placeholder={t("admin.resources.quizQuestionPlaceholder")}
                         className="w-full bg-white text-sm text-[#222222] rounded-lg px-3.5 py-2 border border-[#dddddd]"
                         required
                       />
@@ -565,7 +567,7 @@ export default function AdminResourcesPage() {
                           type="text"
                           value={optionA}
                           onChange={(e) => setOptionA(e.target.value)}
-                          placeholder="Menampilkan gambar/visual"
+                          placeholder={t("admin.resources.optAPlaceholder")}
                           className="w-full bg-white text-sm text-[#222222] rounded-lg px-3 py-1.5 border border-[#dddddd]"
                           required
                         />
@@ -578,7 +580,7 @@ export default function AdminResourcesPage() {
                           type="text"
                           value={optionB}
                           onChange={(e) => setOptionB(e.target.value)}
-                          placeholder="Mencetak dokumen kertas"
+                          placeholder={t("admin.resources.optBPlaceholder")}
                           className="w-full bg-white text-sm text-[#222222] rounded-lg px-3 py-1.5 border border-[#dddddd]"
                           required
                         />
@@ -591,7 +593,7 @@ export default function AdminResourcesPage() {
                           type="text"
                           value={optionC}
                           onChange={(e) => setOptionC(e.target.value)}
-                          placeholder="Menyimpan suara audio"
+                          placeholder={t("admin.resources.optCPlaceholder")}
                           className="w-full bg-white text-sm text-[#222222] rounded-lg px-3 py-1.5 border border-[#dddddd]"
                           required
                         />
@@ -604,7 +606,7 @@ export default function AdminResourcesPage() {
                           type="text"
                           value={optionD}
                           onChange={(e) => setOptionD(e.target.value)}
-                          placeholder="Menghubungkan ke internet"
+                          placeholder={t("admin.resources.optDPlaceholder")}
                           className="w-full bg-white text-sm text-[#222222] rounded-lg px-3 py-1.5 border border-[#dddddd]"
                           required
                         />
@@ -642,7 +644,7 @@ export default function AdminResourcesPage() {
                   type="submit"
                   className="px-6 py-2.5 text-sm font-semibold text-white bg-[#ff385c] hover:bg-[#e00b41] rounded-lg cursor-pointer"
                 >
-                  {editingId ? "Simpan Perubahan" : "Simpan Materi TIK"}
+                  {editingId ? t("admin.resources.saveChangesBtn") : t("admin.resources.saveResourceBtn")}
                 </button>
               </div>
             </form>
@@ -655,9 +657,9 @@ export default function AdminResourcesPage() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
-        title="Hapus Materi Pelajaran TIK"
-        description="Apakah Anda yakin ingin menghapus materi dan soal kuis ini? Seluruh riwayat penyelesaian siswa pada materi ini juga akan terhapus."
-        confirmText="Hapus Materi"
+        title={t("admin.resources.deleteConfirmTitle")}
+        description={t("admin.resources.deleteConfirmDesc")}
+        confirmText={t("admin.resources.deleteConfirmBtn")}
         isDanger={true}
       />
 
@@ -669,7 +671,7 @@ export default function AdminResourcesPage() {
         title={notifModal.title}
         description={notifModal.description}
         badgeText={notifModal.badgeText}
-        primaryButtonText="Mengerti & Lanjutkan →"
+        primaryButtonText={t("admin.resources.notifPrimaryBtn")}
         onPrimaryClick={() =>
           setNotifModal((prev) => ({ ...prev, isOpen: false }))
         }

@@ -6,7 +6,7 @@ import { dictionaries, Locale } from "../lib/dictionaries";
 type LanguageContextType = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -38,7 +38,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     document.cookie = `lms_lang=${newLocale}; path=/; max-age=31536000`; // 1 year
   };
 
-  const t = (path: string): string => {
+  const t = (path: string, params?: Record<string, string | number>): string => {
     const keys = path.split(".");
     let current: any = dictionaries[locale];
     
@@ -48,7 +48,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       }
       current = current[key];
     }
-    return current;
+    
+    let result = current;
+    if (params && typeof result === "string") {
+      Object.keys(params).forEach((key) => {
+        result = result.replace(new RegExp(`{${key}}`, "g"), String(params[key]));
+      });
+    }
+    return result;
   };
 
   return (

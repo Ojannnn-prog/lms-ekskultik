@@ -11,6 +11,7 @@ import {
   X,
   ArrowRight,
 } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export type NotificationModalType =
   | "success"
@@ -46,6 +47,9 @@ export default function NotificationModal({
   onSecondaryClick,
   autoCloseDelay,
 }: NotificationModalProps) {
+  const { t } = useLanguage();
+  const displayPrimaryText = primaryButtonText === "Mengerti & Lanjutkan" ? t("ui.understoodContinue") : primaryButtonText;
+
   useEffect(() => {
     if (isOpen && autoCloseDelay) {
       const timer = setTimeout(() => {
@@ -189,7 +193,7 @@ export default function NotificationModal({
               style.primaryBtn
             }`}
           >
-            <span>{primaryButtonText}</span>
+            <span>{displayPrimaryText}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

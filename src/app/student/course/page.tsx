@@ -15,6 +15,7 @@ import {
   HardDrive,
 } from "lucide-react";
 import { useNotificationModal } from "@/providers/NotificationProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { getStudentCourseList } from "../actions";
 
 interface CourseItem {
@@ -32,6 +33,7 @@ interface CourseItem {
 
 export default function StudentCourseListPage() {
   const { show } = useNotificationModal();
+  const { t } = useLanguage();
 
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +49,7 @@ export default function StudentCourseListPage() {
           }))
         );
       })
-      .catch(() => show({ type: 'error', title: 'Perhatian', description: `Gagal memuat daftar materi`, autoCloseDelay: 2500 }))
+      .catch(() => show({ type: 'error', title: t('student.attention'), description: t('student.fetchCourseError'), autoCloseDelay: 2500 }))
       .finally(() => setLoading(false));
   }, []);
 
@@ -80,15 +82,14 @@ export default function StudentCourseListPage() {
           <div className="inline-flex items-center gap-1.5 bg-[#f7f7f7] px-3 py-1 rounded-full mb-2 border border-[#ebebeb]">
             <Sparkles className="w-3.5 h-3.5 text-[#ff385c]" />
             <span className="text-xs font-semibold text-[#222222]">
-              LMS Core Engine
+              {t("student.lmsCoreEngine")}
             </span>
           </div>
           <h1 className="text-2xl font-bold text-[#222222]">
-            Portal Pembelajaran Ekstrakurikuler TIK
+            {t("student.coursePortalTitle")}
           </h1>
           <p className="text-sm text-[#6a6a6a]">
-            Pilih modul belajar, pelajari materinya, dan taklukkan kuis
-            interaktif untuk mengumpulkan poin gamifikasi!
+            {t("student.coursePortalDesc")}
           </p>
         </div>
       </div>
@@ -105,7 +106,7 @@ export default function StudentCourseListPage() {
                 : "bg-white text-[#6a6a6a] border-[#dddddd] hover:border-[#222222] hover:text-[#222222]"
             }`}
           >
-            {cat === "ALL" ? "Semua Kategori" : cat}
+            {cat === "ALL" ? t("student.allCategories") : cat}
           </button>
         ))}
       </div>
@@ -115,11 +116,10 @@ export default function StudentCourseListPage() {
         <div className="text-center py-16 bg-white border border-dashed border-[#dddddd] rounded-2xl">
           <BookOpen className="w-12 h-12 text-[#929292] mx-auto mb-3" />
           <h3 className="text-base font-bold text-[#222222]">
-            Belum Ada Modul Pelajaran TIK
+            {t("student.noModules")}
           </h3>
           <p className="text-sm text-[#6a6a6a] max-w-md mx-auto mt-1 mb-6">
-            Materi pelajaran akan ditambahkan oleh Admin atau Pembina TIK Anda
-            dalam waktu dekat. Silakan cek kembali nanti!
+            {t("student.noModulesDesc")}
           </p>
         </div>
       ) : (
@@ -138,12 +138,12 @@ export default function StudentCourseListPage() {
                   {item.isCompleted ? (
                     <span className="inline-flex items-center gap-1 text-xs font-bold bg-green-100 text-green-800 px-2.5 py-1 rounded-full">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Selesai</span>
+                      <span>{t("student.completed")}</span>
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 text-xs font-bold bg-amber-50 text-amber-800 px-2.5 py-1 rounded-full border border-amber-200">
                       <Award className="w-3.5 h-3.5" /> +{item.pointsReward}{" "}
-                      Poin
+                      {t("student.points")}
                     </span>
                   )}
                 </div>
@@ -153,7 +153,7 @@ export default function StudentCourseListPage() {
                 </h3>
 
                 <p className="text-sm text-[#6a6a6a] mb-4 line-clamp-3 leading-relaxed">
-                  {item.description || "Klik untuk membaca dan mengerjakan kuis..."}
+                  {item.description || t("student.clickToRead")}
                 </p>
 
                 <div className="flex items-center gap-2 text-xs text-[#6a6a6a] mb-4">
@@ -167,7 +167,7 @@ export default function StudentCourseListPage() {
                   <span className="font-medium">{item.type}</span>
                   <span>•</span>
                   <span>
-                    {item.hasQuiz ? "Ada Kuis Interaktif A-D" : "Materi Bacaan"}
+                    {item.hasQuiz ? t("student.hasInteractiveQuiz") : t("student.readingMaterial")}
                   </span>
                 </div>
               </div>
@@ -175,13 +175,13 @@ export default function StudentCourseListPage() {
               <div className="border-t border-[#ebebeb] pt-4 flex items-center justify-between text-xs">
                 {item.bestScore !== null ? (
                   <span className="font-bold text-green-700 bg-green-50 px-2.5 py-1 rounded-full">
-                    Skor Kuis: {item.bestScore}/100
+                    {t("student.quizScore")} {item.bestScore}/100
                   </span>
                 ) : (
-                  <span className="text-[#929292]">Belum dicoba</span>
+                  <span className="text-[#929292]">{t("student.notTried")}</span>
                 )}
                 <span className="font-bold text-[#222222] group-hover:text-[#ff385c] inline-flex items-center gap-1 transition-colors">
-                  <span>Mulai Belajar</span>
+                  <span>{t("student.startLearning")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </span>
               </div>

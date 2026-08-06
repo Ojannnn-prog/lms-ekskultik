@@ -17,8 +17,11 @@ import {
   CreditCard,
   Sparkles,
 } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function MasterLandingPage() {
+  const { t, locale, setLocale } = useLanguage();
+
   return (
     <div className="min-h-screen bg-white text-[#222222] font-sans selection:bg-[#ff385c] selection:text-white overflow-x-hidden">
       {/* NAVBAR LANDING PAGE */}
@@ -43,46 +46,56 @@ export default function MasterLandingPage() {
               href="#pendaftaran-ekskul"
               className="hover:text-[#ff385c] transition-colors"
             >
-              Pendaftaran
+              {t("landing.nav.registration")}
             </a>
             <a
               href="#generator-kta"
               className="hover:text-[#ff385c] transition-colors"
             >
-              Generator KTA
+              {t("landing.nav.generatorKta")}
             </a>
             <a
               href="#lms-kka"
               className="hover:text-[#2563eb] transition-colors"
             >
-              Absensi KKA
+              {t("landing.nav.attendance")}
             </a>
             <a
               href="#kta-digital"
               className="hover:text-[#222222] transition-colors"
             >
-              KTA & Scanner
+              {t("landing.nav.scanner")}
             </a>
             <a
               href="#gamifikasi"
               className="hover:text-[#222222] transition-colors"
             >
-              Gamifikasi & Gelar
+              {t("landing.nav.gamification")}
             </a>
             <a
               href="#pembina"
               className="hover:text-[#222222] transition-colors"
             >
-              Kelas 5 & 6
+              {t("landing.nav.classes")}
             </a>
           </nav>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Language Switcher Button */}
+            <button
+              onClick={() => setLocale(locale === "id" ? "en" : "id")}
+              className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-full hover:border-[#222222] hover:bg-[#f7f7f7] transition-all duration-150 airbnb-shadow-sm cursor-pointer shrink-0"
+              title="Ubah Bahasa / Change Language"
+            >
+              <span className="text-sm">{locale === "id" ? "🇮🇩" : "🇬🇧"}</span>
+              <span className="hidden sm:block">{locale === "id" ? "ID" : "EN"}</span>
+            </button>
             <Link
               href="/login"
               className="bg-[#ff385c] hover:bg-[#e00b41] text-white text-xs sm:text-sm font-extrabold px-4 py-2 sm:px-6 sm:py-2.5 rounded-full transition-all airbnb-shadow-sm hover:airbnb-shadow flex items-center gap-1.5 shrink-0 whitespace-nowrap"
             >
-              <span>Masuk ke Portal</span>
+              <span className="hidden sm:block">{t("landing.nav.login")}</span>
+              <span className="sm:hidden">Login</span>
               <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Link>
           </div>
@@ -95,16 +108,14 @@ export default function MasterLandingPage() {
           <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8 animate-fadeIn">
             {/* Judul Utama Megah Tanpa Lencana Tulisan */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#222222] tracking-tight leading-snug sm:leading-tight">
-              Belajar TIK Lebih Mudah, Seru, dan{" "}
+              {t("landing.hero.title")}{" "}
               <span className="text-[#ff385c] block sm:inline mt-1 sm:mt-0 underline decoration-[#ff385c]/30 decoration-wavy">
-                100% Terdigitalisasi
+                {t("landing.hero.highlight")}
               </span>
             </h1>
 
             <p className="text-sm sm:text-lg text-[#6a6a6a] max-w-2xl mx-auto leading-relaxed px-2">
-              Selamat datang di portal Learning Management System (LMS) resmi
-              Ekstrakurikuler TIK SDN 231 Sukaasih. Dilengkapi KTA Digital QR
-              Code, Pemindai Kamera Live, serta Gamifikasi Poin Pembelajaran.
+              {t("landing.hero.subtitle")}
             </p>
 
             {/* Tombol CTA dihilangkan karena redundan dengan tombol di tiap section */}
@@ -113,34 +124,34 @@ export default function MasterLandingPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 pt-8 max-w-3xl mx-auto px-2">
               <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#ebebeb] airbnb-shadow-sm">
                 <p className="text-lg sm:text-2xl font-black text-[#ff385c]">
-                  KTA QR
+                  {t("landing.features.kta")}
                 </p>
                 <p className="text-[11px] sm:text-xs font-semibold text-[#6a6a6a]">
-                  Presensi Sekejap
+                  {t("landing.features.ktaSub")}
                 </p>
               </div>
               <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#ebebeb] airbnb-shadow-sm">
                 <p className="text-lg sm:text-2xl font-black text-[#222222]">
-                  Web Scanner
+                  {t("landing.features.scanner")}
                 </p>
                 <p className="text-[11px] sm:text-xs font-semibold text-[#6a6a6a]">
-                  Kamera Browser
+                  {t("landing.features.scannerSub")}
                 </p>
               </div>
               <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#ebebeb] airbnb-shadow-sm">
                 <p className="text-lg sm:text-2xl font-black text-[#ff385c]">
-                  Gamifikasi
+                  {t("landing.features.gami")}
                 </p>
                 <p className="text-[11px] sm:text-xs font-semibold text-[#6a6a6a]">
-                  Poin & Gelar
+                  {t("landing.features.gamiSub")}
                 </p>
               </div>
               <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#ebebeb] airbnb-shadow-sm">
                 <p className="text-lg sm:text-2xl font-black text-[#222222]">
-                  100% Online
+                  {t("landing.features.online")}
                 </p>
                 <p className="text-[11px] sm:text-xs font-semibold text-[#6a6a6a]">
-                  Akses Dimana Saja
+                  {t("landing.features.onlineSub")}
                 </p>
               </div>
             </div>
@@ -172,15 +183,15 @@ export default function MasterLandingPage() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-[8px] sm:text-[10px] font-extrabold uppercase tracking-widest text-[#ff385c] truncate">
-                          PORTAL RESMI
+                          {t("landing.registration.thumbBadge")}
                         </p>
                         <p className="text-xs sm:text-sm font-black text-[#222222] truncate">
-                          Formulir Pendaftaran Online
+                          {t("landing.registration.thumbTitle")}
                         </p>
                       </div>
                     </div>
                     <span className="bg-[#ff385c] text-white text-[9px] sm:text-xs font-extrabold px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-sm shrink-0">
-                      Kelas 5 & 6
+                      {t("landing.nav.classes")}
                     </span>
                   </div>
                 </div>
@@ -191,26 +202,23 @@ export default function MasterLandingPage() {
             <div className="lg:col-span-5 space-y-6">
               <div className="inline-flex items-center gap-2 bg-[#fff8f6] text-[#ff385c] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-[#ff385c]/20">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>PENDAFTARAN ANGGOTA BARU</span>
+                <span>{t("landing.registration.badge")}</span>
               </div>
 
               <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#222222] tracking-tight leading-tight">
-                Siapkan Dirimu Jadi Jagoan TIK Masa Depan!
+                {t("landing.registration.title")}
               </h2>
 
               <p className="text-sm sm:text-base text-[#6a6a6a] leading-relaxed">
-                Platform pendaftaran online resmi Ekstrakurikuler Teknologi
-                Informasi & Komunikasi (TIK) SDN 231 Sukaasih. Tanpa perlu
-                membuat akun terlebih dahulu, mari bergabung belajar bersama
-                dan dapatkan informasi kegiatanmu langsung via WhatsApp!
+                {t("landing.registration.desc")}
               </p>
 
               {/* DAFTAR KEUNGGULAN */}
               <div className="space-y-3 pt-2">
                 {[
-                  "Kurikulum Coding Visual (Scratch) & Desain Grafis",
-                  "Akses Portal Belajar LMS & Kuis Interaktif Berpoin",
-                  "Terbuka untuk Seluruh Siswa Kelas 5 & Kelas 6",
+                  t("landing.registration.perk1"),
+                  t("landing.registration.perk2"),
+                  t("landing.registration.perk3"),
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-[#fff8f6] flex items-center justify-center text-[#ff385c] shrink-0 border border-[#ff385c]/20">
@@ -231,7 +239,7 @@ export default function MasterLandingPage() {
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#ff385c] hover:bg-[#e00b41] text-white font-black text-base px-8 py-5 rounded-2xl transition-all airbnb-shadow hover:airbnb-shadow cursor-pointer group"
                 >
-                  <span>Daftar Sekarang Tanpa Login</span>
+                  <span>{t("landing.registration.btn")}</span>
                   <ExternalLink className="w-5 h-5 group-hover:translate-x-1 sm:group-hover:translate-y-[-2px] transition-transform" />
                 </a>
               </div>
@@ -251,26 +259,23 @@ export default function MasterLandingPage() {
             <div className="lg:col-span-5 space-y-6 order-2 lg:order-1">
               <div className="inline-flex items-center gap-2 bg-[#222222] text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">
                 <CreditCard className="w-3.5 h-3.5 text-[#ff385c]" />
-                <span>KADIGI x KKA • LAYANAN MANDIRI</span>
+                <span>{t("landing.generator.badge")}</span>
               </div>
 
               <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#222222] tracking-tight leading-tight">
-                Generator Kartu Tanda Anggota (KTA) Resmi
+                {t("landing.generator.title")}
               </h2>
 
               <p className="text-sm sm:text-base text-[#6a6a6a] leading-relaxed">
-                Buat Kartu Tanda Anggota Ekstrakurikuler secara mandiri dengan
-                desain <strong className="text-[#222222]">Modern Retro</strong> &
-                unduh langsung dalam resolusi tinggi standar siap cetak
-                (CR-80 / 85.6 × 54 mm).
+                {t("landing.generator.desc")}
               </p>
 
               {/* DAFTAR KEUNGGULAN KTA */}
               <div className="space-y-3 pt-2">
                 {[
-                  "Desain Modern Retro KaDigi x KKA SDN 231 Sukaasih",
-                  "Format Standar Kartu Cetak Resolusi Tinggi (CR-80)",
-                  "Akses Mandiri, Cepat, Gratis & Tanpa Login",
+                  t("landing.generator.perk1"),
+                  t("landing.generator.perk2"),
+                  t("landing.generator.perk3"),
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-[#222222] flex items-center justify-center text-white shrink-0">
@@ -291,7 +296,7 @@ export default function MasterLandingPage() {
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#222222] hover:bg-black text-white font-black text-base px-8 py-5 rounded-2xl transition-all airbnb-shadow hover:airbnb-shadow cursor-pointer group"
                 >
-                  <span>Buat Kartu KTA Saya Sekarang</span>
+                  <span>{t("landing.generator.btn")}</span>
                   <ExternalLink className="w-5 h-5 group-hover:translate-x-1 sm:group-hover:translate-y-[-2px] transition-transform" />
                 </a>
               </div>
@@ -314,10 +319,10 @@ export default function MasterLandingPage() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-[8px] sm:text-[10px] font-extrabold uppercase tracking-widest text-white/70 truncate">
-                          KARTU ANGGOTA
+                          {t("landing.generator.thumbBadge")}
                         </p>
                         <p className="text-xs sm:text-sm font-black text-white truncate">
-                          KaDigi x KKA Official
+                          {t("landing.generator.thumbTitle")}
                         </p>
                       </div>
                     </div>
@@ -356,10 +361,10 @@ export default function MasterLandingPage() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-[8px] sm:text-[10px] font-extrabold uppercase tracking-widest text-[#2563eb] truncate">
-                          ABSENSI & LMS
+                          {t("landing.lms.thumbBadge")}
                         </p>
                         <p className="text-xs sm:text-sm font-black text-[#222222] truncate">
-                          Koding & Kecerdasan Artifisial
+                          {t("landing.lms.thumbTitle")}
                         </p>
                       </div>
                     </div>
@@ -375,35 +380,23 @@ export default function MasterLandingPage() {
             <div className="lg:col-span-5 space-y-6">
               <div className="inline-flex items-center gap-2 bg-[#eff6ff] text-[#2563eb] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-[#2563eb]/20">
                 <QrCode className="w-3.5 h-3.5" />
-                <span>MAPEL KKA FASE C • ABSENSI DIGITAL</span>
+                <span>{t("landing.lms.badge")}</span>
               </div>
 
               <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#222222] tracking-tight leading-tight">
-                Portal Absensi & LMS Koding & AI
+                {t("landing.lms.title")}
               </h2>
 
               <p className="text-sm sm:text-base text-[#6a6a6a] leading-relaxed">
-                Aplikasi resmi Learning Management System (LMS) dan Absensi
-                Mata Pelajaran{" "}
-                <strong className="text-[#222222]">
-                  (Mapel) Koding & Kecerdasan Artifisial (KKA) Fase C
-                </strong>{" "}
-                SDN 231 Sukaasih. Pindai KTA Digital QR Code kamu untuk mencatat
-                kehadiran secara{" "}
-                <em className="not-italic font-semibold text-[#2563eb]">
-                  real-time
-                </em>
-                , pantau papan pengumuman terbaru, dan kejar posisi teratas di
-                Leaderboard Siswa Terajin!
+                {t("landing.lms.desc")}
               </p>
-
 
               {/* DAFTAR KEUNGGULAN ABSENSI & LMS KKA */}
               <div className="space-y-3 pt-2">
                 {[
-                  "Presensi Real-time Cepat dengan Pemindaian QR Code",
-                  "Papan Pengumuman Interaktif & Kustomisasi Avatar Pass",
-                  "Leaderboard Siswa Terajin & Gamifikasi Poin Kehadiran",
+                  t("landing.lms.perk1"),
+                  t("landing.lms.perk2"),
+                  t("landing.lms.perk3"),
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-[#eff6ff] flex items-center justify-center text-[#2563eb] shrink-0 border border-[#2563eb]/20">
@@ -424,7 +417,7 @@ export default function MasterLandingPage() {
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black text-base px-8 py-5 rounded-2xl transition-all airbnb-shadow hover:airbnb-shadow cursor-pointer group"
                 >
-                  <span>Buka Aplikasi Absensi & LMS KKA</span>
+                  <span>{t("landing.lms.btn")}</span>
                   <ExternalLink className="w-5 h-5 group-hover:translate-x-1 sm:group-hover:translate-y-[-2px] transition-transform" />
                 </a>
               </div>
@@ -438,14 +431,13 @@ export default function MasterLandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-xs font-bold uppercase tracking-widest text-[#ff385c] block mb-2">
-              TEKNOLOGI PRESENSI DIGITAL
+              {t("landing.scannerWorkflow.badge")}
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-[#222222]">
-              Presensi Sekejap dengan KTA QR Code & Kamera
+              {t("landing.scannerWorkflow.title")}
             </h2>
             <p className="text-sm sm:text-base text-[#6a6a6a] mt-2">
-              Tidak ada lagi absensi kertas manual. Siswa cukup menunjukkan KTA
-              Digital untuk dipindai oleh kamera peramban Pembina TIK.
+              {t("landing.scannerWorkflow.desc")}
             </p>
           </div>
 
@@ -453,20 +445,20 @@ export default function MasterLandingPage() {
             {[
               {
                 step: "01",
-                title: "Buka KTA Digital QR di Dasbor",
-                desc: "Siswa masuk ke portal dan membuka kartu tanda anggota (KTA) dengan QR Code dinamis yang terenkripsi dan unik.",
+                title: t("landing.scannerWorkflow.step1Title"),
+                desc: t("landing.scannerWorkflow.step1Desc"),
                 icon: <QrCode className="w-8 h-8 text-[#ff385c]" />,
               },
               {
                 step: "02",
-                title: "Scan di Kamera Live Scanner",
-                desc: "Koordinator/Pembina mengarahkan kamera ponsel, tablet, atau webcam laptop ke QR Code KTA siswa.",
+                title: t("landing.scannerWorkflow.step2Title"),
+                desc: t("landing.scannerWorkflow.step2Desc"),
                 icon: <Monitor className="w-8 h-8 text-[#ff385c]" />,
               },
               {
                 step: "03",
-                title: "Audio Beep & +10 Poin Kehadiran",
-                desc: "Sistem berbunyi Beep otomatis, kehadiran tercatat dalam zona waktu WIB (Asia/Jakarta), dan siswa mendapat +10 Poin.",
+                title: t("landing.scannerWorkflow.step3Title"),
+                desc: t("landing.scannerWorkflow.step3Desc"),
                 icon: <Award className="w-8 h-8 text-[#ff385c]" />,
               },
             ].map((st) => (
@@ -504,15 +496,13 @@ export default function MasterLandingPage() {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
             <div className="max-w-xl space-y-6">
               <span className="text-xs font-bold uppercase tracking-widest text-[#ff385c] block">
-                BELAJAR BERBASIS REWARD
+                {t("landing.gamification.badge")}
               </span>
               <h2 className="text-3xl sm:text-4xl font-black text-[#222222] leading-tight">
-                Raih Poin, Buka Gelar, dan Rajai Papan Peringkat!
+                {t("landing.gamification.title")}
               </h2>
               <p className="text-base text-[#6a6a6a] leading-relaxed">
-                Setiap penyelesaian kuis interaktif A-D dan kehadiran akan
-                menghadiahi siswa poin gamifikasi. Tukarkan dengan gelar
-                prestisius untuk dipamerkan di klasemen siswa.
+                {t("landing.gamification.desc")}
               </p>
 
               <div className="grid grid-cols-2 gap-4 pt-4">
@@ -541,10 +531,10 @@ export default function MasterLandingPage() {
               <div className="flex items-center justify-between border-b border-[#ebebeb] pb-4 mb-6">
                 <h3 className="text-lg font-bold text-[#222222] flex items-center gap-2">
                   <Award className="w-5 h-5 text-[#ff385c]" />
-                  <span>Leaderboard Top Siswa</span>
+                  <span>{t("landing.gamification.leaderboardTitle")}</span>
                 </h3>
                 <span className="text-xs font-semibold bg-[#f7f7f7] px-3 py-1 rounded-full">
-                  Live Preview
+                  {t("landing.gamification.livePreview")}
                 </span>
               </div>
 
@@ -597,21 +587,20 @@ export default function MasterLandingPage() {
       <section id="pembina" className="py-20 bg-[#222222] text-white text-center relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 relative z-10">
           <span className="text-xs font-bold uppercase tracking-widest text-[#ff385c] block">
-            SDN 231 SUKAASIH — EKSTRAKURIKULER TIK
+            {t("landing.cta.badge")}
           </span>
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight">
-            Siap Untuk Memulai Petualangan TIK?
+            {t("landing.cta.title")}
           </h2>
           <p className="text-sm sm:text-base text-gray-300 max-w-xl mx-auto">
-            Masuk sekarang sebagai Admin, Koordinator Guru, atau Siswa Kelas 5 &
-            6 untuk mengeksplorasi seluruh fitur canggih platform kami.
+            {t("landing.cta.desc")}
           </p>
           <div className="pt-4">
             <Link
               href="/login"
               className="inline-flex items-center gap-3 bg-[#ff385c] hover:bg-[#e00b41] text-white font-extrabold text-lg px-10 py-5 rounded-2xl transition-all airbnb-shadow hover:airbnb-shadow cursor-pointer"
             >
-              <span>Masuk ke Portal Login</span>
+              <span>{t("landing.cta.btn")}</span>
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
@@ -624,18 +613,18 @@ export default function MasterLandingPage() {
           <div className="flex items-center gap-2 font-bold text-[#222222]">
             <Heart className="w-4 h-4 text-[#ff385c] fill-[#ff385c]" />
             <span>
-              © 2026 SDN 231 Sukaasih — LMS Ekstrakurikuler TIK Kelas 5 & 6.
+              {t("landing.footer.copyright")}
             </span>
           </div>
           <div className="flex items-center gap-6">
             <Link href="/login" className="hover:text-[#ff385c] font-semibold">
-              Portal Admin
+              {t("landing.footer.adminPortal")}
             </Link>
             <Link href="/login" className="hover:text-[#ff385c] font-semibold">
-              Portal Guru Pembina
+              {t("landing.footer.teacherPortal")}
             </Link>
             <Link href="/login" className="hover:text-[#ff385c] font-semibold">
-              Portal Siswa
+              {t("landing.footer.studentPortal")}
             </Link>
           </div>
         </div>

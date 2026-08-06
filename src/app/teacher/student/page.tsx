@@ -18,6 +18,7 @@ import {
   updateStudentAttendanceManual,
   getTeacherMonthlyReport,
 } from "../actions";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface StudentAttItem {
   id: string;
@@ -43,6 +44,7 @@ interface MonthlyRecord {
 
 export default function TeacherStudentAttendancePage() {
   const { show } = useNotificationModal();
+  const { t } = useLanguage();
 
   const [list, setList] = useState<StudentAttItem[]>([]);
   const [classGroup, setClassGroup] = useState("5");
@@ -74,7 +76,7 @@ export default function TeacherStudentAttendancePage() {
       setClassGroup(data.classGroup);
       setList(data.list);
     } catch {
-      show({ type: 'error', title: 'Perhatian', description: `Gagal memuat absensi`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t('teacher.attention'), description: t('teacher.fetch_error_attendance'), autoCloseDelay: 2500 });
     } finally {
       setLoading(false);
     }
@@ -91,13 +93,12 @@ export default function TeacherStudentAttendancePage() {
       setModalConfig({
         isOpen: true,
         type: "success",
-        title: "Presensi Berhasil Dicatat! 📋",
-        description:
-          "Status kehadiran siswa telah resmi diperbarui di database LMS Ekskul TIK.",
-        badgeText: `Status Baru: ${status}`,
+        title: t('teacher.attendance_recorded'),
+        description: t('teacher.attendance_updated'),
+        badgeText: `${t('teacher.new_status')}: ${status}`,
       });
     } catch {
-      show({ type: 'error', title: 'Perhatian', description: `Gagal memperbarui absensi`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t('teacher.attention'), description: t('teacher.update_error_attendance'), autoCloseDelay: 2500 });
     }
   };
 
@@ -109,7 +110,7 @@ export default function TeacherStudentAttendancePage() {
         setShowReportModal(true);
       }
     } catch {
-      show({ type: 'error', title: 'Perhatian', description: `Gagal memuat laporan bulanan`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t('teacher.attention'), description: t('teacher.fetch_error_report'), autoCloseDelay: 2500 });
     }
   };
 
@@ -133,7 +134,7 @@ export default function TeacherStudentAttendancePage() {
       workbook,
       `Laporan_Presensi_TIK_Kelas${classGroup}_${reportMonth}_${reportYear}.xlsx`
     );
-    show({ type: 'success', title: 'Berhasil', description: `Laporan Excel berhasil diunduh`, autoCloseDelay: 1500 });
+    show({ type: 'success', title: t('teacher.success'), description: t('teacher.excel_download_success'), autoCloseDelay: 1500 });
   };
 
   if (loading) {
@@ -152,15 +153,14 @@ export default function TeacherStudentAttendancePage() {
           <div className="inline-flex items-center gap-1.5 bg-[#f7f7f7] px-3 py-1 rounded-full mb-2 border border-[#ebebeb]">
             <Sparkles className="w-3.5 h-3.5 text-[#ff385c]" />
             <span className="text-xs font-semibold text-[#222222]">
-              Absensi & Presensi (WIB)
+              {t('teacher.attendance_wib')}
             </span>
           </div>
           <h1 className="text-2xl font-bold text-[#222222]">
-            Presensi Siswa Kelas {classGroup}
+            {t('teacher.attendance_title')} {classGroup}
           </h1>
           <p className="text-sm text-[#6a6a6a]">
-            Pantau kehadiran harian siswa atau ubah status secara manual
-            apabila tidak membawa KTA QR.
+            {t('teacher.attendance_desc')}
           </p>
         </div>
         <button
@@ -168,7 +168,7 @@ export default function TeacherStudentAttendancePage() {
           className="bg-[#222222] hover:bg-[#ff385c] text-white font-semibold text-xs sm:text-sm px-5 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
         >
           <FileText className="w-4 h-4" />
-          <span>Laporan Bulanan Resmi (9 Kolom)</span>
+          <span>{t('teacher.monthly_report')}</span>
         </button>
       </div>
 
@@ -178,11 +178,11 @@ export default function TeacherStudentAttendancePage() {
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-[#ff385c]" />
             <h2 className="text-lg font-bold text-[#222222]">
-              Daftar Kehadiran Hari Ini (Asia/Jakarta)
+              {t('teacher.today_attendance')}
             </h2>
           </div>
           <span className="text-xs font-semibold bg-[#f7f7f7] text-[#6a6a6a] px-3 py-1 rounded-full border border-[#ebebeb]">
-            Reset 00:00 WIB
+            {t('teacher.reset_time')}
           </span>
         </div>
 
@@ -190,18 +190,18 @@ export default function TeacherStudentAttendancePage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#f7f7f7] border-b border-[#dddddd] text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-                <th className="py-4 px-6 w-16 text-center">No</th>
-                <th className="py-4 px-6">Nama Siswa & NIS</th>
-                <th className="py-4 px-6 text-center">Kelas</th>
-                <th className="py-4 px-6 text-center">Status Presensi</th>
-                <th className="py-4 px-6 text-right">Ubah Status Manual</th>
+                <th className="py-4 px-6 w-16 text-center">{t('teacher.no')}</th>
+                <th className="py-4 px-6">{t('teacher.student_name_nis')}</th>
+                <th className="py-4 px-6 text-center">{t('teacher.class')}</th>
+                <th className="py-4 px-6 text-center">{t('teacher.attendance_status')}</th>
+                <th className="py-4 px-6 text-right">{t('teacher.change_status_manual')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#ebebeb] text-sm text-[#222222]">
               {list.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-[#6a6a6a]">
-                    Belum ada siswa di kelas ini
+                    {t('teacher.no_students')}
                   </td>
                 </tr>
               ) : (
@@ -214,13 +214,13 @@ export default function TeacherStudentAttendancePage() {
                       <div>
                         <p className="font-bold text-[#222222]">{item.name}</p>
                         <p className="text-xs text-[#6a6a6a]">
-                          NIS: {item.studentCode}
+                          {t('teacher.nis')}: {item.studentCode}
                         </p>
                       </div>
                     </td>
                     <td className="py-4 px-6 text-center">
                       <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#f7f7f7] border border-[#ebebeb]">
-                        Kelas {item.classGroup}
+                        {t('teacher.class')} {item.classGroup}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-center">
@@ -235,7 +235,7 @@ export default function TeacherStudentAttendancePage() {
                             : "bg-[#ebebeb] text-[#6a6a6a]"
                         }`}
                       >
-                        {item.status}
+                        {item.status === 'Hadir' ? t('teacher.present') : item.status === 'Izin' ? t('teacher.sick_leave') : item.status === 'Alpha' ? t('teacher.absent') : item.status}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-right">
@@ -254,7 +254,7 @@ export default function TeacherStudentAttendancePage() {
                                 : "text-[#6a6a6a] hover:bg-[#f7f7f7]"
                             }`}
                           >
-                            {status}
+                            {status === 'Hadir' ? t('teacher.present') : status === 'Izin' ? t('teacher.sick_leave') : status === 'Alpha' ? t('teacher.absent') : status}
                           </button>
                         ))}
                       </div>
@@ -274,13 +274,13 @@ export default function TeacherStudentAttendancePage() {
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#ebebeb]">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#ff385c] block">
-                  LAPORAN BULANAN EKSTRAKURIKULER TIK
+                  {t('teacher.report_header')}
                 </span>
                 <h3 className="text-xl font-bold text-[#222222]">
-                  SDN 231 SUKAASIH — KELAS {classGroup}
+                  {t('teacher.school_name')} {classGroup}
                 </h3>
                 <p className="text-xs text-[#6a6a6a]">
-                  Bulan {reportMonth} / Tahun {reportYear}
+                  {t('teacher.month_year').replace('{month}', reportMonth.toString()).replace('{year}', reportYear.toString())}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -289,14 +289,14 @@ export default function TeacherStudentAttendancePage() {
                   className="bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Download className="w-4 h-4 text-[#ff385c]" />
-                  <span>Unduh Excel</span>
+                  <span>{t('teacher.download_excel')}</span>
                 </button>
                 <button
                   onClick={() => window.print()}
                   className="bg-[#ff385c] hover:bg-[#e00b41] text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Printer className="w-4 h-4" />
-                  <span>Cetak / PDF Landscape</span>
+                  <span>{t('teacher.print_pdf')}</span>
                 </button>
                 <button
                   onClick={() => setShowReportModal(false)}
@@ -313,31 +313,31 @@ export default function TeacherStudentAttendancePage() {
                 <thead>
                   <tr className="bg-[#f7f7f7] border border-[#222222] text-[#222222] uppercase">
                     <th className="py-3 px-3 border border-[#222222] text-center w-10">
-                      No
+                      {t('teacher.no')}
                     </th>
                     <th className="py-3 px-3 border border-[#222222]">
-                      NIS Siswa
+                      {t('teacher.student_nis')}
                     </th>
                     <th className="py-3 px-3 border border-[#222222]">
-                      Username
+                      {t('teacher.username')}
                     </th>
                     <th className="py-3 px-3 border border-[#222222]">
-                      Nama Lengkap Siswa
+                      {t('teacher.full_name')}
                     </th>
                     <th className="py-3 px-3 border border-[#222222] text-center">
-                      Kelas
+                      {t('teacher.class')}
                     </th>
                     <th className="py-3 px-3 border border-[#222222] text-center">
-                      Hadir (H)
+                      {t('teacher.present_h')}
                     </th>
                     <th className="py-3 px-3 border border-[#222222] text-center">
-                      Izin (I)
+                      {t('teacher.leave_i')}
                     </th>
                     <th className="py-3 px-3 border border-[#222222] text-center">
-                      Alpha (A)
+                      {t('teacher.absent_a')}
                     </th>
                     <th className="py-3 px-3 border border-[#222222] text-center">
-                      Persentase
+                      {t('teacher.percentage')}
                     </th>
                   </tr>
                 </thead>
@@ -379,10 +379,10 @@ export default function TeacherStudentAttendancePage() {
 
             <div className="mt-6 flex items-center justify-between text-xs text-[#6a6a6a]">
               <span>
-                Dicetak oleh sistem LMS Ekstrakurikuler TIK SDN 231 Sukaasih
+                {t('teacher.printed_by')}
               </span>
               <span>
-                Mengetahui: Koordinator & Pembina Kelas {classGroup}
+                {t('teacher.acknowledged_by')} {classGroup}
               </span>
             </div>
           </div>
@@ -397,7 +397,7 @@ export default function TeacherStudentAttendancePage() {
         title={modalConfig.title}
         description={modalConfig.description}
         badgeText={modalConfig.badgeText}
-        primaryButtonText="Mengerti & Tutup"
+        primaryButtonText={t('teacher.understand_close')}
         onPrimaryClick={() =>
           setModalConfig((prev) => ({ ...prev, isOpen: false }))
         }

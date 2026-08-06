@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   // Hook Notifikasi Global
   const { show } = useNotificationModal();
-  const { t } = useLanguage();
+  const { t, locale, setLocale } = useLanguage();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,7 +97,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col justify-center items-center px-4 py-12 relative">
       {/* Tombol Kembali ke Beranda di Bagian Atas */}
-      <div className="max-w-md w-full mb-4">
+      <div className="max-w-md w-full mb-4 flex items-center justify-between">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#6a6a6a] hover:text-[#222222] transition-colors py-2"
@@ -105,6 +105,16 @@ export default function LoginPage() {
           <ArrowLeft className="w-4 h-4 text-[#ff385c]" />
           <span>Kembali ke Beranda</span>
         </Link>
+
+        {/* Language Switcher */}
+        <button
+          onClick={() => setLocale(locale === "id" ? "en" : "id")}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-full hover:border-[#222222] hover:bg-[#f7f7f7] transition-all duration-150 shadow-sm cursor-pointer"
+          title="Ubah Bahasa / Change Language"
+        >
+          <span className="text-sm">{locale === "id" ? "🇮🇩" : "🇬🇧"}</span>
+          <span>{locale === "id" ? "ID" : "EN"}</span>
+        </button>
       </div>
 
       {/* Brand Header */}

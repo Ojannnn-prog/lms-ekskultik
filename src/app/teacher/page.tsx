@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useNotificationModal } from "@/providers/NotificationProvider";
 import { getTeacherDashboardData } from "./actions";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface ResourceSummary {
   id: string;
@@ -29,6 +30,7 @@ interface ResourceSummary {
 
 export default function TeacherDashboardPage() {
   const { show } = useNotificationModal();
+  const { t } = useLanguage();
 
   const [data, setData] = useState<{
     classGroup: string;
@@ -40,7 +42,7 @@ export default function TeacherDashboardPage() {
   useEffect(() => {
     getTeacherDashboardData()
       .then((res) => setData(res))
-      .catch(() => show({ type: 'error', title: 'Perhatian', description: `Gagal memuat data pembina`, autoCloseDelay: 2500 }))
+      .catch(() => show({ type: 'error', title: t('teacher.attention'), description: t('teacher.fetch_error_dashboard'), autoCloseDelay: 2500 }))
       .finally(() => setLoading(false));
   }, []);
 
@@ -59,14 +61,13 @@ export default function TeacherDashboardPage() {
         <div>
           <div className="inline-flex items-center gap-2 bg-white px-3 py-1 rounded-full mb-3 border border-[#dddddd] text-xs font-semibold text-[#222222]">
             <Sparkles className="w-3.5 h-3.5 text-[#ff385c]" />
-            <span>Koordinator Ekskul TIK • Kelas {data?.classGroup}</span>
+            <span>{t('teacher.coordinator_class')} {data?.classGroup}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-[#222222] tracking-tight mb-2">
-            Pemantauan Pembelajaran LMS (Kelas {data?.classGroup})
+            {t('teacher.dashboard_title')} {data?.classGroup})
           </h1>
           <p className="text-sm text-[#6a6a6a] max-w-2xl">
-            Pantau tingkat penyelesaian materi, nilai rata-rata kuis interaktif,
-            serta rekapitulasi presensi siswa kelas pengampu Anda.
+            {t('teacher.dashboard_subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
@@ -75,14 +76,14 @@ export default function TeacherDashboardPage() {
             className="flex-1 md:flex-none text-center bg-[#ff385c] hover:bg-[#e00b41] text-white font-semibold text-sm px-5 py-3 rounded-lg transition-colors airbnb-shadow-sm flex items-center justify-center gap-2"
           >
             <Users className="w-4 h-4" />
-            <span>Presensi & Rekap</span>
+            <span>{t('teacher.presence_recap')}</span>
           </Link>
           <Link
             href="/teacher/profile"
             className="flex-1 md:flex-none text-center bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-semibold text-sm px-5 py-3 rounded-lg transition-colors airbnb-shadow-sm flex items-center justify-center gap-2"
           >
             <Award className="w-4 h-4 text-[#ff385c]" />
-            <span>Avatar Maker</span>
+            <span>{t('teacher.avatar_maker')}</span>
           </Link>
         </div>
       </div>
@@ -95,10 +96,10 @@ export default function TeacherDashboardPage() {
           </div>
           <div>
             <p className="text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-              Rombongan Belajar
+              {t('teacher.study_group')}
             </p>
             <p className="text-2xl font-bold text-[#222222]">
-              Kelas {data?.classGroup}
+              {t('teacher.class')} {data?.classGroup}
             </p>
           </div>
         </div>
@@ -109,10 +110,10 @@ export default function TeacherDashboardPage() {
           </div>
           <div>
             <p className="text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-              Siswa Pengampu
+              {t('teacher.assigned_students')}
             </p>
             <p className="text-2xl font-bold text-[#222222]">
-              {data?.studentsCount || 0} Siswa
+              {data?.studentsCount || 0} {t('teacher.students')}
             </p>
           </div>
         </div>
@@ -123,10 +124,10 @@ export default function TeacherDashboardPage() {
           </div>
           <div>
             <p className="text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-              Total Modul TIK
+              {t('teacher.total_modules')}
             </p>
             <p className="text-2xl font-bold text-[#222222]">
-              {data?.resourcesSummary.length || 0} Modul
+              {data?.resourcesSummary.length || 0} {t('teacher.modules')}
             </p>
           </div>
         </div>
@@ -137,11 +138,10 @@ export default function TeacherDashboardPage() {
         <div className="p-6 border-b border-[#dddddd] flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-[#222222]">
-              Rapor Progres Modul Pelajaran TIK
+              {t('teacher.progress_report_title')}
             </h2>
             <p className="text-xs text-[#6a6a6a] mt-0.5">
-              Analisis persentase penyelesaian dan skor kuis siswa Kelas{" "}
-              {data?.classGroup}
+              {t('teacher.progress_report_subtitle')} {data?.classGroup}
             </p>
           </div>
           <BookOpen className="w-5 h-5 text-[#ff385c]" />
@@ -149,18 +149,18 @@ export default function TeacherDashboardPage() {
 
         {data?.resourcesSummary.length === 0 ? (
           <div className="text-center py-16 text-[#6a6a6a]">
-            Belum ada materi pelajaran TIK di sistem LMS ini
+            {t('teacher.no_modules')}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#f7f7f7] border-b border-[#dddddd] text-xs font-semibold text-[#6a6a6a] uppercase tracking-wider">
-                  <th className="py-4 px-6">Modul Pembelajaran TIK</th>
-                  <th className="py-4 px-6">Kategori</th>
-                  <th className="py-4 px-6 text-center">Penyelesaian Siswa</th>
-                  <th className="py-4 px-6 text-center">Tingkat Lulus</th>
-                  <th className="py-4 px-6 text-center">Rata-rata Kuis</th>
+                  <th className="py-4 px-6">{t('teacher.learning_module')}</th>
+                  <th className="py-4 px-6">{t('teacher.category')}</th>
+                  <th className="py-4 px-6 text-center">{t('teacher.student_completion')}</th>
+                  <th className="py-4 px-6 text-center">{t('teacher.pass_rate')}</th>
+                  <th className="py-4 px-6 text-center">{t('teacher.quiz_average')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#ebebeb] text-sm text-[#222222]">
@@ -172,8 +172,8 @@ export default function TeacherDashboardPage() {
                           {item.title}
                         </p>
                         <p className="text-xs text-[#6a6a6a]">
-                          Tipe: {item.type} •{" "}
-                          {item.hasQuiz ? "Ada Kuis A-D" : "Materi Bacaan"}
+                          {t('teacher.type')}: {item.type} •{" "}
+                          {item.hasQuiz ? t('teacher.has_quiz') : t('teacher.reading_material')}
                         </p>
                       </div>
                     </td>
@@ -183,7 +183,7 @@ export default function TeacherDashboardPage() {
                       </span>
                     </td>
                     <td className="py-4 px-6 text-center font-bold text-[#222222]">
-                      {item.completedCount} / {item.totalStudents} Siswa
+                      {item.completedCount} / {item.totalStudents} {t('teacher.students')}
                     </td>
                     <td className="py-4 px-6 text-center">
                       <div className="inline-flex items-center gap-2">
@@ -206,7 +206,7 @@ export default function TeacherDashboardPage() {
                         </span>
                       ) : (
                         <span className="text-xs text-[#929292]">
-                          Tanpa Kuis
+                          {t('teacher.no_quiz')}
                         </span>
                       )}
                     </td>

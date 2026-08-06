@@ -2,6 +2,7 @@
 
 import React from "react";
 import { AlertTriangle, HelpCircle, X } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -26,6 +27,11 @@ export default function ConfirmModal({
   isDanger = false,
   loading = false,
 }: ConfirmModalProps) {
+  const { t } = useLanguage();
+  
+  const displayConfirmText = confirmText === "Konfirmasi" ? t("ui.confirm") : confirmText;
+  const displayCancelText = cancelText === "Batal" ? t("ui.cancel") : cancelText;
+
   if (!isOpen) return null;
 
   return (
@@ -73,7 +79,7 @@ export default function ConfirmModal({
             disabled={loading}
             className="px-5 py-2.5 text-sm font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-lg hover:border-[#222222] hover:bg-[#f7f7f7] transition-all cursor-pointer"
           >
-            {cancelText}
+            {displayCancelText}
           </button>
           <button
             type="button"
@@ -85,7 +91,7 @@ export default function ConfirmModal({
                 : "bg-[#ff385c] hover:bg-[#e00b41]"
             }`}
           >
-            {loading ? "Memproses..." : confirmText}
+            {loading ? t("ui.processing") : displayConfirmText}
           </button>
         </div>
       </div>

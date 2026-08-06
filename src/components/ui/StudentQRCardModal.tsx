@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { QrCode, Download, Printer, X, Award, Sparkles } from "lucide-react";
 import QRCode from "qrcode";
 import toast from "react-hot-toast";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface StudentQRCardModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export default function StudentQRCardModal({
   onClose,
   student,
 }: StudentQRCardModalProps) {
+  const { t } = useLanguage();
   const [qrUrl, setQrUrl] = useState<string>("");
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function StudentQRCardModal({
         },
       })
         .then((url) => setQrUrl(url))
-        .catch(() => toast.error("Gagal memproses QR Code"));
+        .catch(() => toast.error(t("ui.failedProcessQR")));
     }
   }, [student]);
 
@@ -49,7 +51,7 @@ export default function StudentQRCardModal({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success("QR Code KTA berhasil diunduh");
+    toast.success(t("ui.qrDownloaded"));
   };
 
   const handlePrintCard = () => {
@@ -77,7 +79,7 @@ export default function StudentQRCardModal({
 
           <div className="mt-2 mb-4">
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#ff385c] block">
-              KTA DIGITAL EKSTRAKURIKULER TIK
+              {t("ui.digitalIDCard")}
             </span>
             <h3 className="text-base font-bold text-[#222222]">
               SDN 231 SUKAASIH
@@ -94,7 +96,7 @@ export default function StudentQRCardModal({
               />
             ) : (
               <div className="w-44 h-44 flex items-center justify-center text-xs text-[#929292]">
-                Memuat QR...
+                {t("ui.loadingQR")}
               </div>
             )}
           </div>
@@ -104,12 +106,12 @@ export default function StudentQRCardModal({
             {student.name}
           </h4>
           <p className="text-xs font-semibold text-[#6a6a6a] mt-0.5">
-            NIS / Kode QR: <span className="text-[#222222]">{student.studentCode}</span>
+            {t("ui.nisQRCode")} <span className="text-[#222222]">{student.studentCode}</span>
           </p>
 
           <div className="flex items-center justify-center gap-2 mt-3">
             <span className="text-xs font-bold bg-[#222222] text-white px-3 py-1 rounded-full">
-              Kelas {student.classGroup}
+              {t("ui.class")} {student.classGroup}
             </span>
             {student.activeTitle && (
               <span className="text-xs font-bold bg-[#ff385c] text-white px-3 py-1 rounded-full flex items-center gap-1">
@@ -119,7 +121,7 @@ export default function StudentQRCardModal({
           </div>
 
           <p className="text-[10px] text-[#929292] mt-4 pt-3 border-t border-[#ebebeb]">
-            Tunjukkan KTA ini kepada Web Scanner untuk absen setiap jadwal kegiatan
+            {t("ui.showToScanner")}
           </p>
         </div>
 
@@ -130,14 +132,14 @@ export default function StudentQRCardModal({
             className="flex-1 bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-semibold text-xs py-3 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Printer className="w-4 h-4 text-[#ff385c]" />
-            <span>Cetak KTA</span>
+            <span>{t("ui.printCard")}</span>
           </button>
           <button
             onClick={handleDownloadQR}
             className="flex-1 bg-[#ff385c] hover:bg-[#e00b41] text-white font-semibold text-xs py-3 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Download className="w-4 h-4" />
-            <span>Unduh Gambar QR</span>
+            <span>{t("ui.downloadQRImage")}</span>
           </button>
         </div>
       </div>

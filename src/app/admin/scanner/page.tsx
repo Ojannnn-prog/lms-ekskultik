@@ -15,10 +15,12 @@ import {
 } from "lucide-react";
 import { useNotificationModal } from "@/providers/NotificationProvider";
 import { Html5Qrcode } from "html5-qrcode";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { scanStudentQRCodeAttendance } from "../actions";
 import NotificationModal, { NotificationModalType } from "@/components/ui/NotificationModal";
 
 export default function AdminScannerPage() {
+  const { t } = useLanguage();
   const { show } = useNotificationModal();
 
   const [inputCode, setInputCode] = useState("");
@@ -181,18 +183,18 @@ export default function AdminScannerPage() {
       if (res.success) {
         playBeepSound(true);
         if (res.alreadyRecorded) {
-          show({ type: 'info', title: 'Informasi', description: `${res.student?.name} sudah tercatat hadir hari ini!`, autoCloseDelay: 2000 });
+          show({ type: 'info', title: 'Informasi', description: `${res.student?.name} ${t("admin.scanner.alreadyPresent")}`, autoCloseDelay: 2000 });
         } else {
           setNotifModal({
             isOpen: true,
             type: "success",
-            title: "Kehadiran Berhasil Tercatat! 🎉",
-            description: `${res.student?.name} mendapatkan +10 Poin Kehadiran.`,
+            title: t("admin.scanner.successNotifTitle"),
+            description: `${res.student?.name} ${t("admin.scanner.pointsEarned")}`,
           });
         }
       } else {
         playBeepSound(false);
-        show({ type: 'error', title: 'Perhatian', description: res.error || "Gagal mencatat kehadiran", autoCloseDelay: 2500 });
+        show({ type: 'error', title: 'Perhatian', description: res.error || t("admin.scanner.failedToRecord"), autoCloseDelay: 2500 });
       }
       setInputCode("");
     } catch {
@@ -273,7 +275,7 @@ export default function AdminScannerPage() {
                 className="flex-1 sm:flex-none bg-[#ff385c] hover:bg-[#e00b41] text-white text-xs font-bold px-5 py-3 rounded-xl transition-colors airbnb-shadow-sm flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Camera className="w-4 h-4" />
-                <span>Mulai Kamera Scanner</span>
+                <span>{t("admin.scanner.startCameraBtn")}</span>
               </button>
             ) : (
               <button
@@ -281,7 +283,7 @@ export default function AdminScannerPage() {
                 className="flex-1 sm:flex-none bg-[#222222] hover:bg-[#3f3f3f] text-white text-xs font-bold px-5 py-3 rounded-xl transition-colors airbnb-shadow-sm flex items-center justify-center gap-2 cursor-pointer"
               >
                 <CameraOff className="w-4 h-4 text-[#ff385c]" />
-                <span>Matikan Kamera</span>
+                <span>{t("admin.scanner.stopCameraBtn")}</span>
               </button>
             )}
           </div>
@@ -330,7 +332,7 @@ export default function AdminScannerPage() {
           </div>
           <div className="flex items-center gap-1 text-xs font-semibold text-[#6a6a6a]">
             <Volume2 className="w-4 h-4 text-[#ff385c]" />
-            <span>Audio Beep Aktif</span>
+            <span>{t("admin.scanner.audioBeepActive")}</span>
           </div>
         </div>
 
@@ -341,7 +343,7 @@ export default function AdminScannerPage() {
               type="text"
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value)}
-              placeholder="Scan Barcode fisik atau ketik NIS Siswa (contoh: 20260501, 20260601)..."
+              placeholder={t("admin.scanner.inputPlaceholder")}
               className="w-full bg-[#f7f7f7] text-[#222222] text-base font-semibold rounded-xl pl-12 pr-28 py-4 border-2 border-[#ebebeb] focus:bg-white focus:border-[#ff385c] focus:outline-none transition-colors"
             />
             <button
@@ -349,7 +351,7 @@ export default function AdminScannerPage() {
               disabled={loading || !inputCode.trim()}
               className="absolute right-2.5 top-2.5 bg-[#ff385c] hover:bg-[#e00b41] text-white font-semibold text-xs px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
             >
-              {loading ? "Mencatat..." : "Proses Absen"}
+              {loading ? t("admin.scanner.processingBtn") : t("admin.scanner.processBtn")}
             </button>
           </div>
         </form>
@@ -383,16 +385,16 @@ export default function AdminScannerPage() {
                 </h3>
                 <div className="mt-2 text-sm text-[#3f3f3f] space-y-1">
                   <p>
-                    <strong>Nama Siswa:</strong>{" "}
+                    <strong>{t("admin.scanner.studentNameLabel")}</strong>{" "}
                     {lastResult.student?.name}
                   </p>
                   <p>
-                    <strong>NIS / Kode QR:</strong>{" "}
+                    <strong>{t("admin.scanner.nisLabel")}</strong>{" "}
                     {lastResult.student?.studentCode} • Kelas{" "}
                     {lastResult.student?.classGroup}
                   </p>
                   <p>
-                    <strong>Status Presensi:</strong>{" "}
+                    <strong>{t("admin.scanner.statusLabel")}</strong>{" "}
                     <span className="font-bold text-green-700">
                       {lastResult.student?.status}
                     </span>
@@ -401,7 +403,7 @@ export default function AdminScannerPage() {
                 {!lastResult.alreadyRecorded && (
                   <div className="mt-3 inline-flex items-center gap-1 text-xs font-bold bg-green-200 text-green-900 px-3 py-1 rounded-full">
                     <UserCheck className="w-3.5 h-3.5" />
-                    <span>+10 Poin Gamifikasi Kehadiran Ditambahkan</span>
+                    <span>{t("admin.scanner.pointsAdded")}</span>
                   </div>
                 )}
               </div>

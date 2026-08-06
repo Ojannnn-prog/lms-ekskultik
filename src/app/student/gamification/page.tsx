@@ -19,6 +19,7 @@ import {
   updateStudentAvatarConfig,
   equipStudentTitle,
 } from "../actions";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface StudentGamify {
   id: string;
@@ -32,6 +33,7 @@ interface StudentGamify {
 }
 
 export default function StudentGamificationPage() {
+  const { t } = useLanguage();
   const { show } = useNotificationModal();
 
   const [data, setData] = useState<{
@@ -467,7 +469,7 @@ export default function StudentGamificationPage() {
                         </div>
                         <div>
                           <p className="font-bold text-[#222222]">
-                            {item.name} {isMe && "(Kamu)"}
+                            {item.name} {isMe && t("student.you")}
                           </p>
                           <p className="text-xs text-[#6a6a6a]">
                             @{item.username}

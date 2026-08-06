@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/providers/LanguageProvider";
 import {
   UserCheck,
   Plus,
@@ -31,6 +32,7 @@ interface TeacherItem {
 }
 
 export default function AdminTeachersPage() {
+  const { t } = useLanguage();
   const { show } = useNotificationModal();
 
   const [teachers, setTeachers] = useState<TeacherItem[]>([]);
@@ -73,7 +75,7 @@ export default function AdminTeachersPage() {
       const data = await getTeachersList();
       setTeachers(data);
     } catch {
-      show({ type: 'error', title: 'Perhatian', description: `Gagal memuat data pembina`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t("admin.teacher.failed"), description: t("admin.teacher.failedLoad"), autoCloseDelay: 2500 });
     } finally {
       setLoading(false);
     }
@@ -106,7 +108,7 @@ export default function AdminTeachersPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !name) {
-      show({ type: 'error', title: 'Perhatian', description: `Username dan Nama lengkap wajib diisi`, autoCloseDelay: 2500 });
+      show({ type: 'error', title: t("admin.teacher.failed"), description: t("admin.teacher.requiredFields"), autoCloseDelay: 2500 });
       return;
     }
 
@@ -116,9 +118,9 @@ export default function AdminTeachersPage() {
         setNotifModal({
           isOpen: true,
           type: "success",
-          title: "Data Pembina Diperbarui! 👨‍🏫",
-          description: `Informasi pembina atas nama "${name}" untuk Kelas ${classGroup} telah disimpan.`,
-          badgeText: `NIP: ${nip || "-"}`,
+          title: t("admin.teacher.updatedTitle"),
+          description: `${t("admin.teacher.updatedDesc1")}${name}${t("admin.teacher.updatedDesc2")}${classGroup}${t("admin.teacher.updatedDesc3")}`,
+          badgeText: `${t("admin.teacher.nipBadge")}${nip || "-"}`,
         });
       } else {
         await createTeacher({
@@ -131,9 +133,9 @@ export default function AdminTeachersPage() {
         setNotifModal({
           isOpen: true,
           type: "success",
-          title: "Pembina Baru Ditambahkan! 🎉",
-          description: `Pembina "${name}" resmi ditugaskan mengampu Kelas ${classGroup}.`,
-          badgeText: `Username: ${username}`,
+          title: t("admin.teacher.addedTitle"),
+          description: `${t("admin.teacher.addedDesc1")}${name}${t("admin.teacher.addedDesc2")}${classGroup}.`,
+          badgeText: `${t("admin.teacher.usernameBadge")}${username}`,
         });
       }
       setIsModalOpen(false);
@@ -142,8 +144,8 @@ export default function AdminTeachersPage() {
       setNotifModal({
         isOpen: true,
         type: "error",
-        title: "Gagal Menyimpan Data ⚠️",
-        description: "Periksa kembali apakah Username sudah digunakan oleh akun lain.",
+        title: t("admin.teacher.failedSave"),
+        description: t("admin.teacher.failedSaveDesc"),
       });
     }
   };
@@ -163,16 +165,16 @@ export default function AdminTeachersPage() {
       setNotifModal({
         isOpen: true,
         type: "success",
-        title: "Password Berhasil Direset! 🔑",
-        description: "Kata sandi baru untuk akun pembina telah diperbarui.",
-        badgeText: "Keamanan Akun",
+        title: t("admin.teacher.resetTitle"),
+        description: t("admin.teacher.resetDesc"),
+        badgeText: t("admin.teacher.resetBadge"),
       });
     } catch {
       setNotifModal({
         isOpen: true,
         type: "error",
-        title: "Gagal Mereset Password ⚠️",
-        description: "Terjadi kesalahan saat memperbarui kata sandi akun pembina.",
+        title: t("admin.teacher.failedReset"),
+        description: t("admin.teacher.failedResetDesc"),
       });
     }
   };
@@ -191,15 +193,15 @@ export default function AdminTeachersPage() {
       setNotifModal({
         isOpen: true,
         type: "success",
-        title: "Akun Pembina Dihapus 🗑️",
-        description: "Akun pembina telah dihapus dari sistem LMS sekolah.",
+        title: t("admin.teacher.deletedTitle"),
+        description: t("admin.teacher.deletedDesc"),
       });
     } catch {
       setNotifModal({
         isOpen: true,
         type: "error",
-        title: "Gagal Menghapus Pembina ⚠️",
-        description: "Terjadi kesalahan saat mencoba menghapus akun pembina.",
+        title: t("admin.teacher.failedDelete"),
+        description: t("admin.teacher.failedDeleteDesc"),
       });
     }
   };
@@ -220,15 +222,14 @@ export default function AdminTeachersPage() {
           <div className="inline-flex items-center gap-1.5 bg-[#f7f7f7] px-3 py-1 rounded-full mb-2 border border-[#ebebeb]">
             <Sparkles className="w-3.5 h-3.5 text-[#ff385c]" />
             <span className="text-xs font-semibold text-[#222222]">
-              Manajemen Tenaga Pendidik
+              {t("admin.teacher.pageTitle")}
             </span>
           </div>
           <h1 className="text-2xl font-bold text-[#222222]">
-            Wali Pembina Ekskul TIK (Kelas 5 & 6)
+            {t("admin.teacher.pageSubtitle")}
           </h1>
           <p className="text-sm text-[#6a6a6a]">
-            Kelola akun guru pendamping untuk pemantauan presensi dan progres
-            siswa per kelas.
+            {t("admin.teacher.pageDesc")}
           </p>
         </div>
         <button
@@ -236,68 +237,68 @@ export default function AdminTeachersPage() {
           className="bg-[#ff385c] hover:bg-[#e00b41] text-white font-semibold text-sm px-5 py-3 rounded-lg transition-colors airbnb-shadow-sm flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
-          <span>Tambah Pembina TIK</span>
+          <span>{t("admin.teacher.addBtn")}</span>
         </button>
       </div>
 
       {/* Grid Kartu Pembina */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {teachers.map((t) => (
+        {teachers.map((teacherItem) => (
           <div
-            key={t.id}
+            key={teacherItem.id}
             className="bg-white border border-[#dddddd] rounded-2xl p-6 airbnb-shadow-sm hover:airbnb-shadow flex flex-col justify-between card-transition"
           >
             <div>
               <div className="flex items-center justify-between gap-2 mb-4">
                 <span className="text-xs font-semibold bg-[#222222] text-white px-3 py-1 rounded-full">
-                  Kelas {t.classGroup}
+                  {t("admin.teacher.classPrefix")}{teacherItem.classGroup}
                 </span>
                 <span className="text-xs font-medium text-[#6a6a6a]">
-                  @{t.username}
+                  @{teacherItem.username}
                 </span>
               </div>
 
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-[#f7f7f7] border border-[#ebebeb] flex items-center justify-center text-lg font-bold text-[#ff385c]">
-                  {t.name.charAt(0)}
+                  {teacherItem.name.charAt(0)}
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-[#222222]">
-                    {t.name}
+                    {teacherItem.name}
                   </h3>
                   <p className="text-xs text-[#6a6a6a]">
-                    NIP: {t.nip || "Belum dicantumkan"}
+                    NIP: {teacherItem.nip || t("admin.teacher.noNip")}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 text-xs text-[#6a6a6a] bg-[#f7f7f7] p-3 rounded-xl border border-[#ebebeb]">
                 <Users className="w-4 h-4 text-[#ff385c]" />
-                <span>Pengampu dan Koordinator Siswa Kelas {t.classGroup}</span>
+                <span>Pengampu dan Koordinator Siswa {t("admin.teacher.classPrefix")}{teacherItem.classGroup}</span>
               </div>
             </div>
 
             <div className="border-t border-[#ebebeb] pt-4 mt-6 flex items-center justify-between text-xs">
               <button
-                onClick={() => openResetModal(t.id)}
+                onClick={() => openResetModal(teacherItem.id)}
                 className="flex items-center gap-1.5 text-[#6a6a6a] hover:text-[#222222] font-semibold p-1.5 rounded-lg hover:bg-[#f7f7f7] transition-colors cursor-pointer"
               >
                 <KeyRound className="w-4 h-4 text-[#ff385c]" />
-                <span>Reset Password</span>
+                <span>{t("admin.teacher.resetBtn")}</span>
               </button>
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => openEditModal(t)}
+                  onClick={() => openEditModal(teacherItem)}
                   className="p-2 text-[#6a6a6a] hover:text-[#222222] hover:bg-[#f7f7f7] rounded-lg transition-colors cursor-pointer"
-                  title="Edit Data Guru"
+                  title={t("admin.teacher.editTitle")}
                 >
                   <Edit className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => confirmDelete(t.id)}
+                  onClick={() => confirmDelete(teacherItem.id)}
                   className="p-2 text-[#6a6a6a] hover:text-[#c13515] hover:bg-[#ffd1da]/30 rounded-lg transition-colors cursor-pointer"
-                  title="Hapus Akun"
+                  title={t("admin.teacher.deleteTitle")}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -313,7 +314,7 @@ export default function AdminTeachersPage() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 border border-[#dddddd] airbnb-shadow">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-[#222222]">
-                {editingId ? "Edit Pembina TIK" : "Tambah Pembina TIK Baru"}
+                {editingId ? t("admin.teacher.editTitle") : t("admin.teacher.addTitle")}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -341,7 +342,7 @@ export default function AdminTeachersPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                  Nama Lengkap & Gelar
+                  {t("admin.teacher.nameLabel")}
                 </label>
                 <input
                   type="text"
@@ -355,7 +356,7 @@ export default function AdminTeachersPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                  NIP (Opsional)
+                  {t("admin.teacher.nipLabel")}
                 </label>
                 <input
                   type="text"
@@ -368,22 +369,22 @@ export default function AdminTeachersPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                  Kelas Pengampu
+                  {t("admin.teacher.classLabel")}
                 </label>
                 <select
                   value={classGroup}
                   onChange={(e) => setClassGroup(e.target.value)}
                   className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd]"
                 >
-                  <option value="5">Kelas 5 (Semua Rombel)</option>
-                  <option value="6">Kelas 6 (Semua Rombel)</option>
+                  <option value="5">{t("admin.teacher.class5")}</option>
+                  <option value="6">{t("admin.teacher.class6")}</option>
                 </select>
               </div>
 
               {!editingId && (
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                    Password Awal
+                    {t("admin.teacher.passwordLabel")}
                   </label>
                   <input
                     type="text"
@@ -401,7 +402,7 @@ export default function AdminTeachersPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="px-5 py-2.5 text-sm font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-lg"
                 >
-                  Batal
+                  {t("admin.teacher.cancelBtn")}
                 </button>
                 <button
                   type="submit"
@@ -420,12 +421,12 @@ export default function AdminTeachersPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 border border-[#dddddd] airbnb-shadow">
             <h3 className="text-lg font-bold text-[#222222] mb-4">
-              Reset Password Pembina
+              {t("admin.teacher.resetModalTitle")}
             </h3>
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                  Password Baru
+                  {t("admin.teacher.newPasswordLabel")}
                 </label>
                 <input
                   type="text"
@@ -442,13 +443,13 @@ export default function AdminTeachersPage() {
                   onClick={() => setIsResetModalOpen(false)}
                   className="px-5 py-2 text-sm font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-lg"
                 >
-                  Batal
+                  {t("admin.teacher.cancelBtn")}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2 text-sm font-semibold text-white bg-[#ff385c] hover:bg-[#e00b41] rounded-lg"
                 >
-                  Simpan Password
+                  {t("admin.teacher.savePasswordBtn")}
                 </button>
               </div>
             </form>
@@ -461,9 +462,9 @@ export default function AdminTeachersPage() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
-        title="Hapus Akun Pembina TIK"
-        description="Apakah Anda yakin ingin menghapus akun pembina ini? Akses login pembina bersangkutan akan segera dicabut."
-        confirmText="Hapus Akun"
+        title={t("admin.teacher.deleteModalTitle")}
+        description={t("admin.teacher.deleteModalDesc")}
+        confirmText={t("admin.teacher.confirmDeleteBtn")}
         isDanger={true}
       />
 
@@ -475,7 +476,7 @@ export default function AdminTeachersPage() {
         title={notifModal.title}
         description={notifModal.description}
         badgeText={notifModal.badgeText}
-        primaryButtonText="Mengerti & Lanjutkan →"
+        primaryButtonText={t("admin.teacher.notificationBtn")}
         onPrimaryClick={() =>
           setNotifModal((prev) => ({ ...prev, isOpen: false }))
         }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/providers/LanguageProvider";
 import {
   Users,
   Plus,
@@ -42,6 +43,7 @@ interface StudentItem {
 }
 
 export default function AdminStudentsPage() {
+  const { t } = useLanguage();
   const [students, setStudents] = useState<StudentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterClass, setFilterClass] = useState("ALL");
@@ -78,7 +80,7 @@ export default function AdminStudentsPage() {
       setStudents(data);
       setSelectedIds([]);
     } catch {
-      show({ type: "error", title: "Gagal", description: "Gagal memuat daftar siswa", autoCloseDelay: 1500 });
+      show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.failedLoad"), autoCloseDelay: 1500 });
     } finally {
       setLoading(false);
     }
@@ -131,7 +133,7 @@ export default function AdminStudentsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !name || !studentCode) {
-      show({ type: "error", title: "Gagal", description: "Username, Nama, dan NIS/Kode QR wajib diisi", autoCloseDelay: 1500 });
+      show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.requiredFields"), autoCloseDelay: 1500 });
       return;
     }
 
@@ -147,9 +149,9 @@ export default function AdminStudentsPage() {
         show({
 
           type: "success",
-          title: "Data Siswa Diperbarui! 👤",
-          description: `Informasi siswa "${name}" (Kelas ${classGroup}) telah diperbarui pada database sekolah.`,
-          badgeText: `NIS: ${studentCode}`,
+          title: t("admin.student.updatedTitle"),
+          description: `${t("admin.student.updatedDesc1")}${name}${t("admin.student.updatedDesc2")}${classGroup}${t("admin.student.updatedDesc3")}`,
+          badgeText: `${t("admin.student.nisBadge")}${studentCode}`,
         });
       } else {
         await createStudent({
@@ -164,9 +166,9 @@ export default function AdminStudentsPage() {
         show({
 
           type: "success",
-          title: "Siswa Baru Ditambahkan! 🎉",
-          description: `Siswa atas nama "${name}" resmi terdaftar di Kelas ${classGroup} dengan KTA Digital aktif.`,
-          badgeText: `Username: ${username}`,
+          title: t("admin.student.addedTitle"),
+          description: `${t("admin.student.addedDesc1")}${name}${t("admin.student.addedDesc2")}${classGroup}${t("admin.student.addedDesc3")}`,
+          badgeText: `${t("admin.student.usernameBadge")}${username}`,
         });
       }
       setIsModalOpen(false);
@@ -175,9 +177,9 @@ export default function AdminStudentsPage() {
       show({
 
         type: "error",
-        title: "Gagal Menyimpan Data ⚠️",
+        title: t("admin.student.failedSave"),
         description:
-          "Periksa kembali apakah Username atau NIS/Kode QR sudah digunakan siswa lain.",
+          t("admin.student.failedSaveDesc"),
       });
     }
   };
@@ -196,16 +198,16 @@ export default function AdminStudentsPage() {
       show({
 
         type: "success",
-        title: "Data Siswa Dihapus 🗑️",
+        title: t("admin.student.deletedTitle"),
         description:
-          "Siswa telah dihapus dari sistem LMS dan KTA Digital dinonaktifkan.",
+          t("admin.student.deletedDesc"),
       });
     } catch {
       show({
 
         type: "error",
-        title: "Gagal Menghapus Siswa ⚠️",
-        description: "Terjadi kesalahan saat menghapus data siswa dari server.",
+        title: t("admin.student.failedDeleteTitle"),
+        description: t("admin.student.failedDeleteDesc"),
       });
     }
   };
@@ -214,20 +216,20 @@ export default function AdminStudentsPage() {
     if (selectedIds.length === 0) return;
     try {
       await bulkMoveStudentClass(selectedIds, targetMoveClass);
-      show({ type: "success", title: "Berhasil", autoCloseDelay: 1500, description: 
-        `${selectedIds.length} siswa berhasil dipindahkan ke Kelas ${targetMoveClass}!`
+      show({ type: "success", title: t("admin.student.success"), autoCloseDelay: 1500, description: 
+        `${selectedIds.length}${t("admin.student.bulkMoveSuccess2")}${targetMoveClass}${t("admin.student.bulkMoveSuccess3")}`
       });
       setIsBulkModalOpen(false);
       loadStudents();
     } catch {
-      show({ type: "error", title: "Gagal", description: "Gagal memindahkan kelas", autoCloseDelay: 1500 });
+      show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.bulkMoveFailed"), autoCloseDelay: 1500 });
     }
   };
 
   // Ekspor ke Excel (.xlsx)
   const handleExportExcel = () => {
     if (students.length === 0) {
-      show({ type: "error", title: "Gagal", description: "Tidak ada data siswa untuk diekspor", autoCloseDelay: 1500 });
+      show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.exportNoData"), autoCloseDelay: 1500 });
       return;
     }
     const dataToExport = students.map((s, i) => ({
@@ -235,10 +237,10 @@ export default function AdminStudentsPage() {
       NIS: s.studentCode,
       Username: s.username,
       "Nama Lengkap": s.name,
-      Kelas: s.classGroup,
+      "Kelas": s.classGroup,
       "Jenis Kelamin": s.gender === "L" ? "Laki-laki" : "Perempuan",
       "Tempat Lahir": s.birthPlace || "-",
-      Poin: s.points,
+      "Poin": s.points,
       "Gelar Aktif": s.activeTitle || "-",
     }));
 
@@ -247,9 +249,9 @@ export default function AdminStudentsPage() {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Siswa Ekskul TIK");
     XLSX.writeFile(
       workbook,
-      `Data_Siswa_EkskulTIK_Kelas_${filterClass}.xlsx`
+      `Data_Siswa_EkskulTIK_{t("admin.student.classLabel")}_${filterClass}.xlsx`
     );
-    show({ type: "success", title: "Berhasil", description: "Data Excel berhasil diunduh!", autoCloseDelay: 1500 });
+    show({ type: "success", title: t("admin.student.success"), description: t("admin.student.exportSuccessDesc"), autoCloseDelay: 1500 });
   };
 
   // Unduh Template Excel Kosong
@@ -259,7 +261,7 @@ export default function AdminStudentsPage() {
         NIS: "123456",
         Username: "siswa_123456",
         "Nama Lengkap": "Contoh Nama Siswa",
-        Kelas: "5",
+        "Kelas": "5",
         "Jenis Kelamin": "L",
         "Tempat Lahir": "Bandung",
       },
@@ -267,7 +269,7 @@ export default function AdminStudentsPage() {
         NIS: "123457",
         Username: "siswa_123457",
         "Nama Lengkap": "Contoh Siswa Kedua",
-        Kelas: "6",
+        "Kelas": "6",
         "Jenis Kelamin": "P",
         "Tempat Lahir": "Jakarta",
       },
@@ -276,7 +278,7 @@ export default function AdminStudentsPage() {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Template Siswa");
     XLSX.writeFile(workbook, "Template_Import_Siswa.xlsx");
-    show({ type: "success", title: "Berhasil", description: "Template Excel berhasil diunduh!", autoCloseDelay: 1500 });
+    show({ type: "success", title: t("admin.student.success"), description: t("admin.student.templateSuccessDesc"), autoCloseDelay: 1500 });
   };
 
   // Impor dari Excel (.xlsx)
@@ -294,7 +296,7 @@ export default function AdminStudentsPage() {
         const json = XLSX.utils.sheet_to_json(ws) as Array<Record<string, any>>;
 
         if (json.length === 0) {
-          show({ type: "error", title: "Gagal", description: "File Excel kosong", autoCloseDelay: 1500 });
+          show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.importEmpty"), autoCloseDelay: 1500 });
           return;
         }
 
@@ -312,10 +314,10 @@ export default function AdminStudentsPage() {
         }));
 
         const res = await importStudentsFromExcel(formatted);
-        show({ type: "success", title: "Berhasil", autoCloseDelay: 1500, description: `Berhasil mengimpor ${res.count} data siswa!` });
+        show({ type: "success", title: t("admin.student.success"), autoCloseDelay: 1500, description: `${t("admin.student.importSuccess1")}${res.count}${t("admin.student.importSuccess2")}` });
         loadStudents();
       } catch {
-        show({ type: "error", title: "Gagal", description: "Format file Excel tidak sesuai. Gunakan kolom NIS, Nama Lengkap, Kelas.", autoCloseDelay: 2500 });
+        show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.importFailedDesc"), autoCloseDelay: 2500 });
       }
     };
     reader.readAsBinaryString(file);
@@ -337,15 +339,14 @@ export default function AdminStudentsPage() {
           <div className="inline-flex items-center gap-1.5 bg-[#f7f7f7] px-3 py-1 rounded-full mb-2 border border-[#ebebeb]">
             <Sparkles className="w-3.5 h-3.5 text-[#ff385c]" />
             <span className="text-xs font-semibold text-[#222222]">
-              Manajemen Rombongan Belajar
+              {t("admin.student.pageTitle")}
             </span>
           </div>
           <h1 className="text-2xl font-bold text-[#222222]">
-            Data Siswa & KTA Digital QR
+            {t("admin.student.pageSubtitle")}
           </h1>
           <p className="text-sm text-[#6a6a6a]">
-            Kelola siswa Kelas 5 & 6, cetak kartu KTA QR, perpindahan kelas
-            massal (Bulk Move), serta ekspor/impor Excel.
+            {t("admin.student.pageDesc")}
           </p>
         </div>
 
@@ -354,10 +355,10 @@ export default function AdminStudentsPage() {
           <button
             onClick={handleDownloadTemplate}
             className="bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-semibold text-xs px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto"
-            title="Unduh Template Excel Kosong"
+            title={t("admin.student.templateBtnTitle")}
           >
             <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#6a6a6a]" />
-            <span className="hidden sm:inline">Template</span>
+            <span className="hidden sm:inline">{t("admin.student.templateBtn")}</span>
           </button>
 
           {/* Export Excel */}
@@ -366,15 +367,15 @@ export default function AdminStudentsPage() {
             className="bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-semibold text-xs px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto"
           >
             <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ff385c]" />
-            <span className="hidden sm:inline">Ekspor Excel</span>
-            <span className="sm:hidden">Ekspor</span>
+            <span className="hidden sm:inline">{t("admin.student.exportBtn")}</span>
+            <span className="sm:hidden">{t("admin.student.exportBtnMobile")}</span>
           </button>
 
           {/* Import Excel */}
           <label className="bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-semibold text-xs px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto">
             <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ff385c]" />
-            <span className="hidden sm:inline">Impor Excel</span>
-            <span className="sm:hidden">Impor</span>
+            <span className="hidden sm:inline">{t("admin.student.importBtn")}</span>
+            <span className="sm:hidden">{t("admin.student.importBtnMobile")}</span>
             <input
               type="file"
               accept=".xlsx,.xls"
@@ -389,17 +390,17 @@ export default function AdminStudentsPage() {
             className="col-span-2 sm:col-span-1 bg-[#ff385c] hover:bg-[#e00b41] text-white font-semibold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg transition-colors airbnb-shadow-sm flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
           >
             <Plus className="w-4 h-4" />
-            <span>Tambah Siswa</span>
+            <span>{t("admin.student.addBtn")}</span>
           </button>
         </div>
       </div>
 
-      {/* Bar Filter Kelas & Action Bulk */}
+      {/* Bar Filter {t("admin.student.classLabel")} & Action Bulk */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#f7f7f7] p-4 rounded-xl border border-[#ebebeb]">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-[#6a6a6a]" />
           <span className="text-xs font-semibold uppercase text-[#6a6a6a]">
-            Filter Kelas:
+            Filter {t("admin.student.classLabel")}:
           </span>
           <div className="flex rounded-lg bg-white border border-[#dddddd] p-0.5">
             {["ALL", "5", "6"].map((cls) => (
@@ -412,24 +413,24 @@ export default function AdminStudentsPage() {
                     : "text-[#6a6a6a] hover:text-[#222222]"
                 }`}
               >
-                {cls === "ALL" ? "Semua Kelas" : `Kelas ${cls}`}
+                {cls === "ALL" ? t("admin.student.allClasses") : `${t("admin.student.classPrefix")}${cls}`}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Action Pindah Kelas Massal (Bulk Move) */}
+        {/* Action Pindah {t("admin.student.classLabel")} Massal (Bulk Move) */}
         {selectedIds.length > 0 && (
           <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-[#dddddd] airbnb-shadow-sm">
             <span className="text-xs font-bold text-[#ff385c]">
-              {selectedIds.length} Siswa Terpilih
+              {selectedIds.length} {t("admin.student.selectedStudents")}
             </span>
             <button
               onClick={() => setIsBulkModalOpen(true)}
               className="bg-[#222222] hover:bg-[#3f3f3f] text-white text-xs font-semibold px-3 py-1.5 rounded-md flex items-center gap-1.5 cursor-pointer"
             >
               <ArrowRightLeft className="w-3.5 h-3.5" />
-              <span>Pindah Kelas Massal</span>
+              <span>{t("admin.student.bulkMoveBtn")}</span>
             </button>
           </div>
         )}
@@ -454,19 +455,19 @@ export default function AdminStudentsPage() {
                     )}
                   </button>
                 </th>
-                <th className="py-4 px-4">Nama Lengkap & NIS</th>
-                <th className="py-4 px-4">Kelas</th>
-                <th className="py-4 px-4">Gender & TTL</th>
-                <th className="py-4 px-4 text-center">Poin & Gelar</th>
-                <th className="py-4 px-4 text-center">KTA Digital</th>
-                <th className="py-4 px-4 text-right">Aksi</th>
+                <th className="py-4 px-4">{t("admin.student.tableCol1")}</th>
+                <th className="py-4 px-4">{t("admin.student.tableCol2")}</th>
+                <th className="py-4 px-4">{t("admin.student.tableCol3")}</th>
+                <th className="py-4 px-4 text-center">{t("admin.student.tableCol4")}</th>
+                <th className="py-4 px-4 text-center">{t("admin.student.tableCol5")}</th>
+                <th className="py-4 px-4 text-right">{t("admin.student.tableCol6")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#ebebeb] text-sm text-[#222222]">
               {students.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-[#6a6a6a]">
-                    Tidak ada siswa pada filter ini
+                    {t("admin.student.noStudents")}
                   </td>
                 </tr>
               ) : (
@@ -497,18 +498,18 @@ export default function AdminStudentsPage() {
                     </td>
                     <td className="py-4 px-4">
                       <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-[#f7f7f7] border border-[#ebebeb]">
-                        Kelas {st.classGroup}
+                        {t("admin.student.classLabel")} {st.classGroup}
                       </span>
                     </td>
                     <td className="py-4 px-4 text-xs text-[#6a6a6a]">
                       <p>
-                        {st.gender === "L" ? "Laki-laki (L)" : "Perempuan (P)"}
+                        {st.gender === "L" ? t("admin.student.maleLabel") : t("admin.student.femaleLabel")}
                       </p>
                       <p>{st.birthPlace || "Bandung"}</p>
                     </td>
                     <td className="py-4 px-4 text-center">
                       <span className="font-bold text-[#ff385c]">
-                        {st.points} Poin
+                        {st.points} {t("admin.student.pointsText")}
                       </span>
                       {st.activeTitle && (
                         <p className="text-[11px] text-[#6a6a6a]">
@@ -522,7 +523,7 @@ export default function AdminStudentsPage() {
                         className="inline-flex items-center gap-1 bg-white hover:bg-[#f7f7f7] border border-[#dddddd] px-3 py-1.5 rounded-lg text-xs font-semibold text-[#222222] transition-colors airbnb-shadow-sm cursor-pointer"
                       >
                         <QrCode className="w-3.5 h-3.5 text-[#ff385c]" />
-                        <span>KTA QR</span>
+                        <span>{t("admin.student.ktaBtn")}</span>
                       </button>
                     </td>
                     <td className="py-4 px-4 text-right">
@@ -530,14 +531,14 @@ export default function AdminStudentsPage() {
                         <button
                           onClick={() => openEditModal(st)}
                           className="p-2 text-[#6a6a6a] hover:text-[#222222] hover:bg-[#f7f7f7] rounded-lg transition-colors cursor-pointer"
-                          title="Edit Siswa"
+                          title={t("admin.student.editTitle")}
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => confirmDelete(st.id)}
                           className="p-2 text-[#6a6a6a] hover:text-[#c13515] hover:bg-[#ffd1da]/30 rounded-lg transition-colors cursor-pointer"
-                          title="Hapus Siswa"
+                          title={t("admin.student.deleteTitle")}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -557,7 +558,7 @@ export default function AdminStudentsPage() {
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 border border-[#dddddd] airbnb-shadow my-8">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-[#222222]">
-                {editingId ? "Edit Siswa" : "Tambah Siswa Baru"}
+                {editingId ? t("admin.student.editTitle") : t("admin.student.addTitle")}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -571,7 +572,7 @@ export default function AdminStudentsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                    NIS / Kode QR
+                    {t("admin.student.nisLabel")}
                   </label>
                   <input
                     type="text"
@@ -584,7 +585,7 @@ export default function AdminStudentsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                    Username Login
+                    {t("admin.student.usernameLabel")}
                   </label>
                   <input
                     type="text"
@@ -600,7 +601,7 @@ export default function AdminStudentsPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                  Nama Lengkap Siswa
+                  {t("admin.student.nameLabel")}
                 </label>
                 <input
                   type="text"
@@ -615,15 +616,15 @@ export default function AdminStudentsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                    Kelas
+                    {t("admin.student.classLabel")}
                   </label>
                   <select
                     value={classGroup}
                     onChange={(e) => setClassGroup(e.target.value)}
                     className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd]"
                   >
-                    <option value="5">Kelas 5</option>
-                    <option value="6">Kelas 6</option>
+                    <option value="5">{t("admin.student.classLabel")} 5</option>
+                    <option value="6">{t("admin.student.classLabel")} 6</option>
                   </select>
                 </div>
                 <div>
@@ -635,13 +636,13 @@ export default function AdminStudentsPage() {
                     onChange={(e) => setGender(e.target.value)}
                     className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd]"
                   >
-                    <option value="L">Laki-laki (L)</option>
-                    <option value="P">Perempuan (P)</option>
+                    <option value="L">{t("admin.student.maleLabel")}</option>
+                    <option value="P">{t("admin.student.femaleLabel")}</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                    Kota Lahir
+                    {t("admin.student.birthPlaceLabel")}
                   </label>
                   <input
                     type="text"
@@ -656,7 +657,7 @@ export default function AdminStudentsPage() {
               {!editingId && (
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                    Password Awal
+                    {t("admin.student.passwordLabel")}
                   </label>
                   <input
                     type="text"
@@ -674,13 +675,13 @@ export default function AdminStudentsPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="px-5 py-2.5 text-sm font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-lg"
                 >
-                  Batal
+                  {t("admin.student.cancelBtn")}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2.5 text-sm font-semibold text-white bg-[#ff385c] hover:bg-[#e00b41] rounded-lg"
                 >
-                  {editingId ? "Simpan Perubahan" : "Tambah Siswa"}
+                  {editingId ? t("admin.student.saveBtn") : "Tambah Siswa"}
                 </button>
               </div>
             </form>
@@ -688,29 +689,28 @@ export default function AdminStudentsPage() {
         </div>
       )}
 
-      {/* Modal Pindah Kelas Massal (Bulk Move Class) */}
+      {/* Modal Pindah {t("admin.student.classLabel")} Massal (Bulk Move Class) */}
       {isBulkModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 border border-[#dddddd] airbnb-shadow">
             <h3 className="text-lg font-bold text-[#222222] mb-2">
-              Pindah Kelas Massal ({selectedIds.length} Siswa)
+              Pindah {t("admin.student.classLabel")} Massal ({selectedIds.length}{t("admin.student.bulkMoveModalTitle2")}
             </h3>
             <p className="text-sm text-[#6a6a6a] mb-4">
-              Pilih kelas baru untuk memindahkan seluruh siswa yang terpilih
-              sekaligus:
+              {t("admin.student.bulkMoveModalDesc")}
             </p>
 
             <div className="mb-6">
               <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-2">
-                Pindah ke Kelas:
+                Pindah ke {t("admin.student.classLabel")}:
               </label>
               <select
                 value={targetMoveClass}
                 onChange={(e) => setTargetMoveClass(e.target.value)}
                 className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-3 border border-[#dddddd]"
               >
-                <option value="5">Kelas 5</option>
-                <option value="6">Kelas 6</option>
+                <option value="5">{t("admin.student.classLabel")} 5</option>
+                <option value="6">{t("admin.student.classLabel")} 6</option>
               </select>
             </div>
 
@@ -719,13 +719,13 @@ export default function AdminStudentsPage() {
                 onClick={() => setIsBulkModalOpen(false)}
                 className="px-5 py-2.5 text-sm font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-lg"
               >
-                Batal
+                {t("admin.student.cancelBtn")}
               </button>
               <button
                 onClick={handleBulkMove}
                 className="px-5 py-2.5 text-sm font-semibold text-white bg-[#222222] hover:bg-[#ff385c] rounded-lg"
               >
-                Konfirmasi Pindah Kelas
+                Konfirmasi Pindah {t("admin.student.classLabel")}
               </button>
             </div>
           </div>
@@ -744,9 +744,9 @@ export default function AdminStudentsPage() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
-        title="Hapus Data Siswa"
-        description="Apakah Anda yakin ingin menghapus data siswa ini? Semua progres belajar, kuis, dan riwayat presensi siswa juga akan terhapus."
-        confirmText="Hapus Siswa"
+        title={t("admin.student.deleteModalTitle")}
+        description={t("admin.student.deleteModalDesc")}
+        confirmText={t("admin.student.confirmDeleteBtn")}
         isDanger={true}
       />
 

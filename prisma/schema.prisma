@@ -1,0 +1,106 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  name      String   @default("Koordinator Ekskul TIK")
+  createdAt DateTime @default(now())
+}
+
+model Teacher {
+  id             String   @id @default(cuid())
+  username       String   @unique
+  password       String
+  name           String   @default("Pembina TIK")
+  nip            String?
+  classGroup     String   @default("5") // "5" atau "6"
+  profileImage   String?
+  avatarUnlocked Boolean  @default(true)
+  avatarConfig   String?
+  activeTitle    String?
+  createdAt      DateTime @default(now())
+}
+
+model Student {
+  id              String            @id @default(cuid())
+  username        String            @unique
+  password        String
+  name            String
+  studentCode     String            @unique // NIS (dipakai untuk QR Code)
+  classGroup      String            @default("5") // "5" atau "6"
+  gender          String            @default("L") // "L" atau "P"
+  birthPlace      String?
+  birthDate       DateTime?
+  profileImage    String?
+  points          Int               @default(0)
+  activeTitle     String?
+  unlockedTitles  String[]          @default([])
+  avatarUnlocked  Boolean           @default(false)
+  avatarConfig    String?
+  attendances     Attendance[]
+  studentProgress StudentProgress[]
+  quizAttempts    QuizAttempt[]
+  createdAt       DateTime          @default(now())
+  lastActive      DateTime?
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status    String   // "Hadir", "Izin", "Alpha"
+  timestamp DateTime @default(now()) // Stempel waktu Asia/Jakarta (WIB)
+}
+
+model CourseResource {
+  id              String            @id @default(cuid())
+  title           String
+  description     String?
+  category        String            @default("Teknologi") // Kategori modul belajar TIK
+  type            String            // "TEXT", "PDF", "VIDEO", "LINK"
+  content         String
+  fileUrl         String?
+  quizConfig      String?           // JSON soal kuis interaktif A-D & kunci jawaban
+  pointsReward    Int               @default(25) // Poin hadiah jika lulus kuis modul
+  createdAt       DateTime          @default(now())
+  studentProgress StudentProgress[]
+  quizAttempts    QuizAttempt[]
+}
+
+model StudentProgress {
+  id          String         @id @default(cuid())
+  studentId   String
+  student     Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  resourceId  String
+  resource    CourseResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  completed   Boolean        @default(false)
+  completedAt DateTime       @default(now())
+
+  @@unique([studentId, resourceId])
+}
+
+model QuizAttempt {
+  id         String         @id @default(cuid())
+  studentId  String
+  student    Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  resourceId String
+  resource   CourseResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  score      Int
+  passed     Boolean
+  createdAt  DateTime       @default(now())
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}

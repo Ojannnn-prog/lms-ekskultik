@@ -17,6 +17,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { useNotificationModal } from "@/providers/NotificationProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,6 +31,7 @@ export default function LoginPage() {
 
   // Hook Notifikasi Global
   const { show } = useNotificationModal();
+  const { t } = useLanguage();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,15 +124,23 @@ export default function LoginPage() {
       </div>
 
       {/* White Card Airbnb Style */}
-      <div className="max-w-md w-full bg-white rounded-3xl border border-[#dddddd] airbnb-shadow p-8">
-        <h2 className="text-xl font-bold text-[#222222] mb-6">
-          Masuk ke Akun Anda
-        </h2>
+      <div className="relative z-10 w-full max-w-[420px] bg-white rounded-[2rem] shadow-2xl p-8 sm:p-10 border border-[#dddddd]">
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#fff8f6] mb-4 border border-[#ff385c]/20">
+            <Sparkles className="w-8 h-8 text-[#ff385c]" />
+          </div>
+          <h2 className="text-2xl font-bold text-[#222222] mb-1">
+            {t("login.title")}
+          </h2>
+          <p className="text-sm font-medium text-[#6a6a6a]">
+            {t("login.subtitle")}
+          </p>
+        </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-2">
-              Username / NIS
+              {t("login.username")}
             </label>
             <div className="relative">
               <User className="absolute left-4 top-3.5 w-5 h-5 text-[#929292]" />
@@ -138,7 +148,7 @@ export default function LoginPage() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Masukkan username atau NIS"
+                placeholder={t("login.usernamePlaceholder")}
                 className="w-full bg-[#f7f7f7] text-[#222222] text-sm font-medium rounded-xl pl-12 pr-4 py-3.5 border border-[#ebebeb] focus:bg-white focus:border-[#222222] focus:outline-none transition-colors"
                 required
               />
@@ -148,7 +158,7 @@ export default function LoginPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider">
-                Password
+                {t("login.password")}
               </label>
               <button
                 type="button"
@@ -164,7 +174,7 @@ export default function LoginPage() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder={t("login.passwordPlaceholder")}
                 className="w-full bg-[#f7f7f7] text-[#222222] text-sm font-medium rounded-xl pl-12 pr-12 py-3.5 border border-[#ebebeb] focus:bg-white focus:border-[#222222] focus:outline-none transition-colors"
                 required
               />
@@ -189,7 +199,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-[#ff385c] hover:bg-[#e00b41] text-white font-bold text-base py-3.5 rounded-xl transition-colors duration-200 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
           >
-            {loading ? "Memproses..." : "Masuk Sekarang"}
+            {loading ? t("login.loggingIn") : t("login.button")}
           </button>
         </form>
       </div>

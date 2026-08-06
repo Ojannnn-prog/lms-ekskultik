@@ -16,6 +16,7 @@ import {
 import { useNotificationModal } from "@/providers/NotificationProvider";
 import StudentQRCardModal from "@/components/ui/StudentQRCardModal";
 import NotificationModal from "@/components/ui/NotificationModal";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { getStudentDashboardData } from "./actions";
 
 interface StudentData {
@@ -37,6 +38,7 @@ interface AnnouncementItem {
 
 export default function StudentDashboardPage() {
   const { show } = useNotificationModal();
+  const { t } = useLanguage();
 
   const [data, setData] = useState<{
     student: StudentData;
@@ -91,12 +93,10 @@ export default function StudentDashboardPage() {
             <span>Siswa Ekskul TIK • Kelas {student?.classGroup}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-[#222222] tracking-tight mb-2">
-            Halo, {student?.name}! 👋
+            {t("studentDashboard.welcome")}, {student?.name}! 👋
           </h1>
           <p className="text-sm text-[#6a6a6a] max-w-xl">
-            Selamat datang di portal belajar Ekstrakurikuler TIK SDN 231
-            Sukaasih. Gunakan KTA QR Code untuk presensi dan tingkatkan poin
-            gamifikasimu!
+            {t("studentDashboard.title")} SDN 231 Sukaasih. Gunakan KTA QR Code untuk presensi dan tingkatkan poin gamifikasimu!
           </p>
         </div>
 

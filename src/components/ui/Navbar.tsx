@@ -7,6 +7,7 @@ import { Sparkles, LogOut, BookOpen, Users, QrCode, Award, UserCheck, Menu, X } 
 import { motion, AnimatePresence } from "framer-motion";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { useNotificationModal } from "@/providers/NotificationProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface NavbarProps {
   user: {
@@ -29,6 +30,9 @@ export default function Navbar({ user }: NavbarProps) {
 
   // State untuk modal logout
   const [showConfirmLogout, setShowConfirmLogout] = useState(false);
+
+  // Bahasa
+  const { locale, setLocale, t } = useLanguage();
 
   const handleLogoutConfirm = async () => {
     setShowConfirmLogout(false);
@@ -56,24 +60,24 @@ export default function Navbar({ user }: NavbarProps) {
   const getNavLinks = () => {
     if (user.role === "admin") {
       return [
-        { label: "Dasbor Eksekutif", href: "/admin", icon: Sparkles },
-        { label: "Kurator LMS TIK", href: "/admin/resources", icon: BookOpen },
-        { label: "Data Pembina", href: "/admin/teacher", icon: UserCheck },
-        { label: "Data Siswa & KTA", href: "/admin/student", icon: Users },
-        { label: "Web Scanner QR", href: "/admin/scanner", icon: QrCode },
+        { label: t("sidebar.admin.dashboard"), href: "/admin", icon: Sparkles },
+        { label: t("sidebar.admin.materials"), href: "/admin/resources", icon: BookOpen },
+        { label: t("sidebar.admin.teachers"), href: "/admin/teacher", icon: UserCheck },
+        { label: t("sidebar.admin.students"), href: "/admin/student", icon: Users },
+        { label: t("sidebar.admin.scanner"), href: "/admin/scanner", icon: QrCode },
       ];
     }
     if (user.role === "teacher") {
       return [
-        { label: "Progres Belajar LMS", href: "/teacher", icon: BookOpen },
-        { label: "Absensi & Rekap Siswa", href: "/teacher/student", icon: Users },
-        { label: "Profil & Avatar Maker", href: "/teacher/profile", icon: Award },
+        { label: t("sidebar.teacher.dashboard"), href: "/teacher", icon: BookOpen },
+        { label: t("sidebar.teacher.students"), href: "/teacher/student", icon: Users },
+        { label: t("sidebar.teacher.profile"), href: "/teacher/profile", icon: Award },
       ];
     }
     return [
-      { label: "Dasbor LMS & KTA", href: "/student", icon: BookOpen },
-      { label: "Portal Belajar & Kuis", href: "/student/course", icon: Sparkles },
-      { label: "Toko Avatar & Peringkat", href: "/student/gamification", icon: Award },
+      { label: t("sidebar.student.dashboard"), href: "/student", icon: BookOpen },
+      { label: t("sidebar.student.courses"), href: "/student/course", icon: Sparkles },
+      { label: t("sidebar.student.gamification"), href: "/student/gamification", icon: Award },
     ];
   };
 
@@ -150,12 +154,21 @@ export default function Navbar({ user }: NavbarProps) {
             </div>
 
             <button
+              onClick={() => setLocale(locale === "id" ? "en" : "id")}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-full hover:border-[#222222] hover:bg-[#f7f7f7] transition-all duration-150 airbnb-shadow-sm cursor-pointer shrink-0"
+              title="Ubah Bahasa / Change Language"
+            >
+              <span className="text-sm">{locale === "id" ? "🇮🇩" : "🇬🇧"}</span>
+              <span className="hidden sm:block">{locale === "id" ? "ID" : "EN"}</span>
+            </button>
+
+            <button
               onClick={() => setShowConfirmLogout(true)}
               className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-full hover:border-[#222222] hover:bg-[#f7f7f7] transition-all duration-150 airbnb-shadow-sm cursor-pointer shrink-0 whitespace-nowrap"
-              title="Keluar dari sesi"
+              title={t("common.logout")}
             >
               <LogOut className="w-3.5 h-3.5 text-[#ff385c]" />
-              <span>Keluar</span>
+              <span>{t("common.logout")}</span>
             </button>
 
             {/* Mobile Hamburger Button */}
@@ -236,7 +249,7 @@ export default function Navbar({ user }: NavbarProps) {
                 className="flex items-center gap-3 px-3 py-3 mt-2 text-sm font-semibold rounded-xl text-[#ff385c] hover:bg-[#fff8f6] transition-colors text-left"
               >
                 <LogOut className="w-5 h-5" />
-                <span>Keluar dari Sesi</span>
+                <span>{t("common.logout")}</span>
               </button>
             </div>
           </motion.div>
@@ -246,13 +259,13 @@ export default function Navbar({ user }: NavbarProps) {
       {/* Modal Konfirmasi Keluar */}
       <ConfirmModal
         isOpen={showConfirmLogout}
-        title="Keluar dari Sesi LMS?"
-        description="Anda akan mengakhiri sesi aktif di LMS Ekskul TIK SDN 231 Sukaasih. Pastikan aktivitas atau penilaian Anda telah tersimpan."
-        confirmText="Ya, Keluar Sekarang"
-        cancelText="Batal"
-        isDanger={true}
-        onConfirm={handleLogoutConfirm}
         onClose={() => setShowConfirmLogout(false)}
+        onConfirm={handleLogoutConfirm}
+        title={t("common.logout")}
+        description="Apakah Anda yakin ingin keluar dari sistem LMS Ekskul TIK SDN 231 Sukaasih? Sesi Anda akan diakhiri."
+        confirmText={t("common.yes")}
+        cancelText={t("common.cancel")}
+        isDanger={true}
       />
     </header>
   );

@@ -112,8 +112,13 @@ export default function LoginPage() {
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-full hover:border-[#222222] hover:bg-[#f7f7f7] transition-all duration-150 shadow-sm cursor-pointer"
           title="Ubah Bahasa / Change Language"
         >
-          <span className="text-sm">{locale === "id" ? "🇮🇩" : "🇬🇧"}</span>
-          <span>{locale === "id" ? "ID" : "EN"}</span>
+          <img 
+            src={locale === "id" ? "https://flagcdn.com/w20/id.png" : "https://flagcdn.com/w20/gb.png"} 
+            width="20" 
+            alt="flag" 
+            className="rounded-[2px]"
+          />
+          <span className="hidden sm:block">{locale === "id" ? "ID" : "EN"}</span>
         </button>
       </div>
 

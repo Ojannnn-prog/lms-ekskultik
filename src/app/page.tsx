@@ -87,7 +87,12 @@ export default function MasterLandingPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-full hover:border-[#222222] hover:bg-[#f7f7f7] transition-all duration-150 airbnb-shadow-sm cursor-pointer shrink-0"
               title="Ubah Bahasa / Change Language"
             >
-              <span className="text-sm">{locale === "id" ? "🇮🇩" : "🇬🇧"}</span>
+              <img 
+                src={locale === "id" ? "https://flagcdn.com/w20/id.png" : "https://flagcdn.com/w20/gb.png"} 
+                width="20" 
+                alt="flag" 
+                className="rounded-[2px]"
+              />
               <span className="hidden sm:block">{locale === "id" ? "ID" : "EN"}</span>
             </button>
             <Link

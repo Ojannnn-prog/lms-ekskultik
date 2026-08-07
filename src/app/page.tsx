@@ -18,9 +18,19 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { getPublicLeaderboard } from "@/app/actions";
 
 export default function MasterLandingPage() {
   const { t, locale, setLocale } = useLanguage();
+  const [leaderboard, setLeaderboard] = React.useState<any[]>([]);
+  const [isLoadingLb, setIsLoadingLb] = React.useState(true);
+
+  React.useEffect(() => {
+    getPublicLeaderboard().then(data => {
+      setLeaderboard(data);
+      setIsLoadingLb(false);
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-white text-[#222222] font-sans selection:bg-[#ff385c] selection:text-white overflow-x-hidden">
@@ -544,44 +554,45 @@ export default function MasterLandingPage() {
               </div>
 
               <div className="space-y-4">
-                {[
-                  { rank: 1, name: "Andi Pratama", cls: "5", pts: 420, title: "Cyber Explorer" },
-                  { rank: 2, name: "Fajar Nugraha", cls: "6", pts: 380, title: "Master Coding" },
-                  { rank: 3, name: "Bella Safitri", cls: "5", pts: 310, title: "Master Coding" },
-                  { rank: 4, name: "Gita Larasati", cls: "6", pts: 260, title: "Desainer Cilik" },
-                ].map((lb) => (
-                  <div
-                    key={lb.rank}
-                    className="flex items-center justify-between p-3.5 bg-[#f7f7f7] rounded-xl border border-[#ebebeb]"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs text-white ${
-                          lb.rank === 1
-                            ? "bg-amber-500"
-                            : lb.rank === 2
-                            ? "bg-gray-400"
-                            : lb.rank === 3
-                            ? "bg-amber-700"
-                            : "bg-[#222222]"
-                        }`}
-                      >
-                        {lb.rank}
+                {isLoadingLb ? (
+                  <div className="text-center py-6 text-sm text-[#6a6a6a]">Memuat...</div>
+                ) : leaderboard.length === 0 ? (
+                  <div className="text-center py-6 text-sm text-[#6a6a6a]">Belum ada data</div>
+                ) : (
+                  leaderboard.map((lb, index) => (
+                    <div
+                      key={lb.id}
+                      className="flex items-center justify-between p-3.5 bg-[#f7f7f7] rounded-xl border border-[#ebebeb]"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs text-white ${
+                            index === 0
+                              ? "bg-amber-500"
+                              : index === 1
+                              ? "bg-gray-400"
+                              : index === 2
+                              ? "bg-amber-700"
+                              : "bg-[#222222]"
+                          }`}
+                        >
+                          {index + 1}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-[#222222]">
+                            {lb.name}
+                          </p>
+                          <p className="text-[11px] text-[#6a6a6a]">
+                            Kelas {lb.classGroup} • {lb.activeTitle || "Tidak ada gelar"}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-[#222222]">
-                          {lb.name}
-                        </p>
-                        <p className="text-[11px] text-[#6a6a6a]">
-                          Kelas {lb.cls} • {lb.title}
-                        </p>
-                      </div>
+                      <span className="text-sm font-extrabold text-[#ff385c]">
+                        {lb.points} Pts
+                      </span>
                     </div>
-                    <span className="text-sm font-extrabold text-[#ff385c]">
-                      {lb.pts} Pts
-                    </span>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>

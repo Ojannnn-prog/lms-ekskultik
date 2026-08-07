@@ -105,8 +105,9 @@ export default function AdminScannerPage() {
     }
   };
 
-  const startCameraScanner = async () => {
-    if (!selectedCameraId) {
+  const startCameraScanner = async (forceCameraId?: string) => {
+    const camId = forceCameraId || selectedCameraId;
+    if (!camId) {
       await fetchAvailableCameras();
       return;
     }
@@ -123,7 +124,7 @@ export default function AdminScannerPage() {
       isScanningRef.current = true;
 
       await html5QrCode.start(
-        selectedCameraId,
+        camId,
         {
           fps: 10,
           qrbox: { width: 260, height: 260 },
@@ -252,10 +253,11 @@ export default function AdminScannerPage() {
               <select
                 value={selectedCameraId}
                 onChange={(e) => {
-                  setSelectedCameraId(e.target.value);
+                  const newId = e.target.value;
+                  setSelectedCameraId(newId);
                   if (isCameraActive) {
                     stopCameraScanner().then(() => {
-                      setTimeout(startCameraScanner, 300);
+                      setTimeout(() => startCameraScanner(newId), 300);
                     });
                   }
                 }}
@@ -271,7 +273,7 @@ export default function AdminScannerPage() {
 
             {!isCameraActive ? (
               <button
-                onClick={startCameraScanner}
+                onClick={() => startCameraScanner()}
                 className="flex-1 sm:flex-none bg-[#ff385c] hover:bg-[#e00b41] text-white text-xs font-bold px-5 py-3 rounded-xl transition-colors airbnb-shadow-sm flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Camera className="w-4 h-4" />
@@ -311,8 +313,8 @@ export default function AdminScannerPage() {
                 kamera peramban Anda untuk memindai QR secara otomatis.
               </p>
               <button
-                onClick={startCameraScanner}
-                className="text-xs font-bold bg-white hover:bg-[#ebebeb] text-[#222222] px-4 py-2 rounded-lg border border-[#dddddd] transition-colors cursor-pointer"
+                onClick={() => startCameraScanner()}
+                className="text-xs font-bold bg-white hover:bg-[#ebebeb] text-[#222222] px-5 py-2.5 rounded-xl transition-colors border border-[#dddddd] airbnb-shadow-sm cursor-pointer"
               >
                 Aktifkan Sekarang
               </button>

@@ -66,6 +66,7 @@ export default function AdminStudentsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [username, setUsername] = useState("");
+  const [originalUsername, setOriginalUsername] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [studentCode, setStudentCode] = useState("");
   const [classGroup, setClassGroup] = useState("5");
@@ -122,6 +123,7 @@ export default function AdminStudentsPage() {
   const openAddModal = () => {
     setEditingId(null);
     setUsername("");
+    setOriginalUsername(null);
     setName("");
     setStudentCode("");
     setClassGroup(filterClass !== "ALL" ? filterClass : "5");
@@ -134,6 +136,7 @@ export default function AdminStudentsPage() {
   const openEditModal = (item: StudentItem) => {
     setEditingId(item.id);
     setUsername(item.username);
+    setOriginalUsername(item.username);
     setName(item.name);
     setStudentCode(item.studentCode);
     setClassGroup(item.classGroup);
@@ -640,6 +643,11 @@ export default function AdminStudentsPage() {
                     className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd]"
                     required
                   />
+                  {editingId && originalUsername && (
+                    <p className="mt-1 text-xs text-[#6a6a6a]">
+                      Username sebelumnya: <span className="font-semibold text-[#222222]">{originalUsername}</span>
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -805,17 +813,17 @@ export default function AdminStudentsPage() {
 
       {/* MODAL CETAK LAPORAN (ADMIN) */}
       {showReportModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-5xl w-full p-6 sm:p-8 border border-[#dddddd] airbnb-shadow my-8">
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#ebebeb]">
+        <div className="fixed inset-0 z-[60] flex items-start sm:items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn overflow-y-auto pt-10 sm:pt-4">
+          <div className="bg-white rounded-2xl max-w-5xl w-full p-4 sm:p-8 border border-[#dddddd] airbnb-shadow my-8 max-h-[90vh] flex flex-col">
+            <div className="flex flex-col lg:flex-row lg:items-start justify-between mb-4 pb-4 border-b border-[#ebebeb] gap-4 shrink-0">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#ff385c] block">
                   LAPORAN KEHADIRAN BULANAN
                 </span>
-                <h3 className="text-xl font-bold text-[#222222]">
+                <h3 className="text-lg sm:text-xl font-bold text-[#222222]">
                   Laporan Ekskul TIK (Admin) {filterClass !== "ALL" ? `- Kelas ${filterClass}` : "- Semua Kelas"}
                 </h3>
-                <div className="flex items-center gap-3 mt-3">
+                <div className="flex flex-wrap items-center gap-2 mt-3">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-[#6a6a6a]">Dari Bulan:</span>
                     <select 
@@ -853,37 +861,39 @@ export default function AdminStudentsPage() {
                   </div>
                   <button 
                     onClick={loadMonthlyReport}
-                    className="ml-2 bg-[#222222] text-white px-3 py-1 text-xs rounded hover:bg-[#ff385c]"
+                    className="ml-0 sm:ml-2 bg-[#222222] text-white px-3 py-1 text-xs rounded hover:bg-[#ff385c]"
                   >
                     Terapkan
                   </button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <button
                   onClick={exportReportExcel}
-                  className="bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                  className="bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Download className="w-4 h-4 text-[#ff385c]" />
-                  <span>Unduh Excel</span>
+                  <span className="hidden sm:inline">Unduh Excel</span>
+                  <span className="sm:hidden">Excel</span>
                 </button>
                 <button
                   onClick={() => window.print()}
-                  className="bg-[#ff385c] hover:bg-[#e00b41] text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                  className="bg-[#ff385c] hover:bg-[#e00b41] text-white px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Printer className="w-4 h-4" />
-                  <span>Cetak PDF</span>
+                  <span className="hidden sm:inline">Cetak PDF</span>
+                  <span className="sm:hidden">PDF</span>
                 </button>
                 <button
                   onClick={() => setShowReportModal(false)}
-                  className="text-[#929292] hover:text-[#222222] ml-2"
+                  className="text-[#929292] hover:text-[#222222] ml-1 sm:ml-2 p-2"
                 >
                   ✕
                 </button>
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto overflow-y-auto flex-1 min-h-[300px]">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-[#f7f7f7] border border-[#222222] text-[#222222] uppercase">

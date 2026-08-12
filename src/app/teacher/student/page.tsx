@@ -51,7 +51,8 @@ export default function TeacherStudentAttendancePage() {
   const [loading, setLoading] = useState(true);
 
   // State untuk Laporan Bulanan Resmi (9 Kolom Landscape)
-  const [reportMonth, setReportMonth] = useState(new Date().getMonth() + 1);
+  const [reportMonthStart, setReportMonthStart] = useState(new Date().getMonth() + 1);
+  const [reportMonthEnd, setReportMonthEnd] = useState(new Date().getMonth() + 1);
   const [reportYear, setReportYear] = useState(new Date().getFullYear());
   const [reportData, setReportData] = useState<MonthlyRecord[]>([]);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -104,7 +105,7 @@ export default function TeacherStudentAttendancePage() {
 
   const loadMonthlyReport = async () => {
     try {
-      const res = await getTeacherMonthlyReport(reportMonth, reportYear);
+      const res = await getTeacherMonthlyReport(reportMonthStart, reportMonthEnd, reportYear);
       if (res.success) {
         setReportData(res.records);
         setShowReportModal(true);
@@ -132,7 +133,7 @@ export default function TeacherStudentAttendancePage() {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Ekskul TIK");
     XLSX.writeFile(
       workbook,
-      `Laporan_Presensi_TIK_Kelas${classGroup}_${reportMonth}_${reportYear}.xlsx`
+      `Laporan_Presensi_TIK_Kelas${classGroup}_Bulan${reportMonthStart}-${reportMonthEnd}_${reportYear}.xlsx`
     );
     show({ type: 'success', title: t('teacher.success'), description: t('teacher.excel_download_success'), autoCloseDelay: 1500 });
   };
@@ -279,9 +280,49 @@ export default function TeacherStudentAttendancePage() {
                 <h3 className="text-xl font-bold text-[#222222]">
                   {t('teacher.school_name')} {classGroup}
                 </h3>
-                <p className="text-xs text-[#6a6a6a]">
-                  {t('teacher.month_year').replace('{month}', reportMonth.toString()).replace('{year}', reportYear.toString())}
-                </p>
+                <div className="flex items-center gap-3 mt-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-[#6a6a6a]">Dari Bulan:</span>
+                    <select 
+                      value={reportMonthStart} 
+                      onChange={(e) => setReportMonthStart(Number(e.target.value))}
+                      className="bg-[#f7f7f7] border border-[#dddddd] text-xs px-2 py-1 rounded"
+                    >
+                      {Array.from({length: 12}, (_, i) => i + 1).map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-[#6a6a6a]">Sampai:</span>
+                    <select 
+                      value={reportMonthEnd} 
+                      onChange={(e) => setReportMonthEnd(Number(e.target.value))}
+                      className="bg-[#f7f7f7] border border-[#dddddd] text-xs px-2 py-1 rounded"
+                    >
+                      {Array.from({length: 12}, (_, i) => i + 1).map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-[#6a6a6a]">Tahun:</span>
+                    <select 
+                      value={reportYear} 
+                      onChange={(e) => setReportYear(Number(e.target.value))}
+                      className="bg-[#f7f7f7] border border-[#dddddd] text-xs px-2 py-1 rounded"
+                    >
+                      <option value={new Date().getFullYear()}>{new Date().getFullYear()}</option>
+                      <option value={new Date().getFullYear() - 1}>{new Date().getFullYear() - 1}</option>
+                    </select>
+                  </div>
+                  <button 
+                    onClick={loadMonthlyReport}
+                    className="ml-2 bg-[#222222] text-white px-3 py-1 text-xs rounded hover:bg-[#ff385c]"
+                  >
+                    Terapkan
+                  </button>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <button

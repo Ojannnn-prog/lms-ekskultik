@@ -218,6 +218,30 @@ export async function updateStudent(
   return { success: true, student: updated };
 }
 
+export async function resetStudentCredentials(id: string, newUsername?: string, newPassword?: string) {
+  await requireAdmin();
+  const updateData: any = {};
+  if (newUsername) {
+    // Check if newUsername is already taken by another student
+    const existing = await prisma.student.findUnique({ where: { username: newUsername } });
+    if (existing && existing.id !== id) {
+      throw new Error("Username already taken by another student");
+    }
+    updateData.username = newUsername;
+  }
+  if (newPassword) {
+    updateData.password = await hashPassword(newPassword);
+  }
+  if (Object.keys(updateData).length > 0) {
+    await prisma.student.update({
+      where: { id },
+      data: updateData,
+    });
+    revalidatePath("/admin/student");
+  }
+  return { success: true };
+}
+
 export async function deleteStudent(id: string) {
   await requireAdmin();
   await prisma.student.delete({ where: { id } });
@@ -233,6 +257,51 @@ export async function bulkMoveStudentClass(studentIds: string[], targetClassGrou
   });
   revalidatePath("/admin/student");
   return { success: true };
+}
+
+export async function getAdminMonthlyReport(startMonth: number, endMonth: number, year: number, classGroup: string) {
+  await requireAdmin();
+  
+  const where = classGroup && classGroup !== "ALL" ? { classGroup } : {};
+  
+  const students = await prisma.student.findMany({
+    where,
+    orderBy: [{ classGroup: "asc" }, { name: "asc" }],
+    include: {
+      attendances: {
+        where: {
+          timestamp: {
+            gte: new Date(year, startMonth - 1, 1),
+            lte: new Date(year, endMonth, 0, 23, 59, 59),
+          },
+        },
+      },
+    },
+  });
+
+  const records = students.map((st, index) => {
+    const hadir = st.attendances.filter((a) => a.status === "Hadir").length;
+    const izin = st.attendances.filter((a) => a.status === "Izin").length;
+    const alpha = st.attendances.filter((a) => a.status === "Alpha").length;
+    const totalRecorded = hadir + izin + alpha;
+    const percentage =
+      totalRecorded > 0 ? Math.round((hadir / totalRecorded) * 100) : 0;
+
+    return {
+      no: index + 1,
+      name: st.name,
+      studentCode: st.studentCode,
+      username: st.username,
+      classGroup: st.classGroup,
+      hadir,
+      izin,
+      alpha,
+      rekap: `${hadir}/${izin}/${alpha}`,
+      percentage: `${percentage}%`,
+    };
+  });
+
+  return { success: true, records };
 }
 
 export async function importStudentsFromExcel(

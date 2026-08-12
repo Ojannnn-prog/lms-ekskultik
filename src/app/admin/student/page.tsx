@@ -15,6 +15,10 @@ import {
   Square,
   ArrowRightLeft,
   Filter,
+  Eye,
+  EyeOff,
+  Printer,
+  FileText,
 } from "lucide-react";
 import { useNotificationModal } from "@/providers/NotificationProvider";
 import * as XLSX from "xlsx";
@@ -28,6 +32,8 @@ import {
   deleteStudent,
   bulkMoveStudentClass,
   importStudentsFromExcel,
+  resetStudentCredentials,
+  getAdminMonthlyReport,
 } from "../actions";
 
 interface StudentItem {
@@ -66,11 +72,18 @@ export default function AdminStudentsPage() {
   const [gender, setGender] = useState("L");
   const [birthPlace, setBirthPlace] = useState("Bandung");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Delete Confirm Modal
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  // State Laporan Bulanan (Admin)
+  const [reportMonthStart, setReportMonthStart] = useState(new Date().getMonth() + 1);
+  const [reportMonthEnd, setReportMonthEnd] = useState(new Date().getMonth() + 1);
+  const [reportYear, setReportYear] = useState(new Date().getFullYear());
+  const [reportData, setReportData] = useState<any[]>([]);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const { show } = useNotificationModal();
 
@@ -146,8 +159,10 @@ export default function AdminStudentsPage() {
           gender,
           birthPlace,
         });
-        show({
+        
+        await resetStudentCredentials(editingId, username, password || undefined);
 
+        show({
           type: "success",
           title: t("admin.student.updatedTitle"),
           description: `${t("admin.student.updatedDesc1")}${name}${t("admin.student.updatedDesc2")}${classGroup}${t("admin.student.updatedDesc3")}`,
@@ -164,7 +179,6 @@ export default function AdminStudentsPage() {
           password: password || "siswa123",
         });
         show({
-
           type: "success",
           title: t("admin.student.addedTitle"),
           description: `${t("admin.student.addedDesc1")}${name}${t("admin.student.addedDesc2")}${classGroup}${t("admin.student.addedDesc3")}`,
@@ -175,11 +189,9 @@ export default function AdminStudentsPage() {
       loadStudents();
     } catch {
       show({
-
         type: "error",
         title: t("admin.student.failedSave"),
-        description:
-          t("admin.student.failedSaveDesc"),
+        description: t("admin.student.failedSaveDesc"),
       });
     }
   };
@@ -196,15 +208,12 @@ export default function AdminStudentsPage() {
       setIsDeleteModalOpen(false);
       loadStudents();
       show({
-
         type: "success",
         title: t("admin.student.deletedTitle"),
-        description:
-          t("admin.student.deletedDesc"),
+        description: t("admin.student.deletedDesc"),
       });
     } catch {
       show({
-
         type: "error",
         title: t("admin.student.failedDeleteTitle"),
         description: t("admin.student.failedDeleteDesc"),
@@ -226,7 +235,6 @@ export default function AdminStudentsPage() {
     }
   };
 
-  // Ekspor ke Excel (.xlsx)
   const handleExportExcel = () => {
     if (students.length === 0) {
       show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.exportNoData"), autoCloseDelay: 1500 });
@@ -249,12 +257,11 @@ export default function AdminStudentsPage() {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Siswa Ekskul TIK");
     XLSX.writeFile(
       workbook,
-      `Data_Siswa_EkskulTIK_{t("admin.student.classLabel")}_${filterClass}.xlsx`
+      `Data_Siswa_EkskulTIK_Kelas_${filterClass}.xlsx`
     );
     show({ type: "success", title: t("admin.student.success"), description: t("admin.student.exportSuccessDesc"), autoCloseDelay: 1500 });
   };
 
-  // Unduh Template Excel Kosong
   const handleDownloadTemplate = () => {
     const templateData = [
       {
@@ -265,14 +272,6 @@ export default function AdminStudentsPage() {
         "Jenis Kelamin": "L",
         "Tempat Lahir": "Bandung",
       },
-      {
-        NIS: "123457",
-        Username: "siswa_123457",
-        "Nama Lengkap": "Contoh Siswa Kedua",
-        "Kelas": "6",
-        "Jenis Kelamin": "P",
-        "Tempat Lahir": "Jakarta",
-      },
     ];
     const worksheet = XLSX.utils.json_to_sheet(templateData);
     const workbook = XLSX.utils.book_new();
@@ -281,7 +280,6 @@ export default function AdminStudentsPage() {
     show({ type: "success", title: t("admin.student.success"), description: t("admin.student.templateSuccessDesc"), autoCloseDelay: 1500 });
   };
 
-  // Impor dari Excel (.xlsx)
   const handleImportExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -291,36 +289,73 @@ export default function AdminStudentsPage() {
       try {
         const bstr = evt.target?.result;
         const workbook = XLSX.read(bstr, { type: "binary" });
-        const wsName = workbook.SheetNames[0];
-        const ws = workbook.Sheets[wsName];
-        const json = XLSX.utils.sheet_to_json(ws) as Array<Record<string, any>>;
+        const wsname = workbook.SheetNames[0];
+        const ws = workbook.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
 
-        if (json.length === 0) {
-          show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.importEmpty"), autoCloseDelay: 1500 });
+        if (data.length === 0) {
+          show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.emptyDataDesc"), autoCloseDelay: 1500 });
           return;
         }
 
-        const formatted = json.map((row) => ({
-          username: String(
-            row["Username"] || row["username"] || `siswa_${row["NIS"] || row["studentCode"]}`
-          ),
-          name: String(row["Nama Lengkap"] || row["name"] || "Siswa"),
-          studentCode: String(row["NIS"] || row["studentCode"] || Date.now()),
-          classGroup: String(row["Kelas"] || row["classGroup"] || "5"),
-          gender: String(row["Jenis Kelamin"] || row["gender"] || "L").startsWith("P")
-            ? "P"
-            : "L",
-          birthPlace: String(row["Tempat Lahir"] || row["birthPlace"] || "Bandung"),
-        }));
+        const mappedData = data.map((row: any) => ({
+          username: String(row["Username"] || ""),
+          name: String(row["Nama Lengkap"] || ""),
+          studentCode: String(row["NIS"] || ""),
+          classGroup: String(row["Kelas"] || ""),
+          gender: String(row["Jenis Kelamin"] || "L"),
+          birthPlace: String(row["Tempat Lahir"] || ""),
+        })).filter(r => r.username && r.name && r.studentCode && r.classGroup);
 
-        const res = await importStudentsFromExcel(formatted);
-        show({ type: "success", title: t("admin.student.success"), autoCloseDelay: 1500, description: `${t("admin.student.importSuccess1")}${res.count}${t("admin.student.importSuccess2")}` });
+        if (mappedData.length === 0) {
+          show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.invalidFormatDesc"), autoCloseDelay: 1500 });
+          return;
+        }
+
+        await importStudentsFromExcel(mappedData);
+        show({ type: "success", title: t("admin.student.importSuccess"), description: `${t("admin.student.importSuccessDesc1")}${mappedData.length}${t("admin.student.importSuccessDesc2")}`, autoCloseDelay: 2000 });
         loadStudents();
       } catch {
-        show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.importFailedDesc"), autoCloseDelay: 2500 });
+        show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.importErrorDesc"), autoCloseDelay: 1500 });
       }
     };
     reader.readAsBinaryString(file);
+    e.target.value = "";
+  };
+
+  const loadMonthlyReport = async () => {
+    try {
+      const res = await getAdminMonthlyReport(reportMonthStart, reportMonthEnd, reportYear, filterClass);
+      if (res.success) {
+        setReportData(res.records);
+        setShowReportModal(true);
+      }
+    } catch {
+      show({ type: 'error', title: 'Perhatian', description: 'Gagal memuat laporan', autoCloseDelay: 2500 });
+    }
+  };
+
+  const exportReportExcel = () => {
+    const dataToExport = reportData.map((r) => ({
+      No: r.no,
+      NIS: r.studentCode,
+      Username: r.username,
+      "Nama Lengkap": r.name,
+      Kelas: r.classGroup,
+      Hadir: r.hadir,
+      Izin: r.izin,
+      Alpha: r.alpha,
+      "Rekap (H/I/A)": r.rekap,
+      "Persentase (%)": r.percentage,
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Ekskul TIK");
+    XLSX.writeFile(
+      workbook,
+      `Laporan_Presensi_TIK_Admin_${filterClass}_Bulan${reportMonthStart}-${reportMonthEnd}_${reportYear}.xlsx`
+    );
+    show({ type: 'success', title: 'Sukses', description: 'Laporan Excel berhasil diunduh.', autoCloseDelay: 1500 });
   };
 
   if (loading) {
@@ -383,6 +418,16 @@ export default function AdminStudentsPage() {
               className="hidden"
             />
           </label>
+
+          {/* Cetak Laporan */}
+          <button
+            onClick={loadMonthlyReport}
+            className="bg-[#222222] hover:bg-[#ff385c] text-white border border-[#222222] font-semibold text-xs px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto"
+          >
+            <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Cetak Laporan</span>
+            <span className="sm:hidden">Laporan</span>
+          </button>
 
           {/* Tambah Siswa */}
           <button
@@ -591,9 +636,8 @@ export default function AdminStudentsPage() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    disabled={!!editingId}
                     placeholder="Contoh: andi5"
-                    className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd] disabled:opacity-50"
+                    className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd]"
                     required
                   />
                 </div>
@@ -654,20 +698,28 @@ export default function AdminStudentsPage() {
                 </div>
               </div>
 
-              {!editingId && (
-                <div>
-                  <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
-                    {t("admin.student.passwordLabel")}
-                  </label>
+              <div>
+                <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
+                  {t("admin.student.passwordLabel")}
+                </label>
+                <div className="relative">
                   <input
-                    type="text"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Default: siswa123"
-                    className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd]"
+                    placeholder={editingId ? "Kosongkan jika tidak ingin mengubah password" : "Default: siswa123"}
+                    className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd] pr-10"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#6a6a6a] hover:text-[#222222]"
+                    title={showPassword ? "Sembunyikan password" : "Lihat password"}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
-              )}
+              </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#ebebeb]">
                 <button
@@ -750,6 +802,146 @@ export default function AdminStudentsPage() {
         isDanger={true}
       />
 
+
+      {/* MODAL CETAK LAPORAN (ADMIN) */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-5xl w-full p-6 sm:p-8 border border-[#dddddd] airbnb-shadow my-8">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#ebebeb]">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#ff385c] block">
+                  LAPORAN KEHADIRAN BULANAN
+                </span>
+                <h3 className="text-xl font-bold text-[#222222]">
+                  Laporan Ekskul TIK (Admin) {filterClass !== "ALL" ? `- Kelas ${filterClass}` : "- Semua Kelas"}
+                </h3>
+                <div className="flex items-center gap-3 mt-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-[#6a6a6a]">Dari Bulan:</span>
+                    <select 
+                      value={reportMonthStart} 
+                      onChange={(e) => setReportMonthStart(Number(e.target.value))}
+                      className="bg-[#f7f7f7] border border-[#dddddd] text-xs px-2 py-1 rounded"
+                    >
+                      {Array.from({length: 12}, (_, i) => i + 1).map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-[#6a6a6a]">Sampai:</span>
+                    <select 
+                      value={reportMonthEnd} 
+                      onChange={(e) => setReportMonthEnd(Number(e.target.value))}
+                      className="bg-[#f7f7f7] border border-[#dddddd] text-xs px-2 py-1 rounded"
+                    >
+                      {Array.from({length: 12}, (_, i) => i + 1).map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-[#6a6a6a]">Tahun:</span>
+                    <select 
+                      value={reportYear} 
+                      onChange={(e) => setReportYear(Number(e.target.value))}
+                      className="bg-[#f7f7f7] border border-[#dddddd] text-xs px-2 py-1 rounded"
+                    >
+                      <option value={new Date().getFullYear()}>{new Date().getFullYear()}</option>
+                      <option value={new Date().getFullYear() - 1}>{new Date().getFullYear() - 1}</option>
+                    </select>
+                  </div>
+                  <button 
+                    onClick={loadMonthlyReport}
+                    className="ml-2 bg-[#222222] text-white px-3 py-1 text-xs rounded hover:bg-[#ff385c]"
+                  >
+                    Terapkan
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={exportReportExcel}
+                  className="bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Download className="w-4 h-4 text-[#ff385c]" />
+                  <span>Unduh Excel</span>
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="bg-[#ff385c] hover:bg-[#e00b41] text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Cetak PDF</span>
+                </button>
+                <button
+                  onClick={() => setShowReportModal(false)}
+                  className="text-[#929292] hover:text-[#222222] ml-2"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-[#f7f7f7] border border-[#222222] text-[#222222] uppercase">
+                    <th className="py-3 px-3 border border-[#222222] text-center w-10">No</th>
+                    <th className="py-3 px-3 border border-[#222222]">NIS</th>
+                    <th className="py-3 px-3 border border-[#222222]">Username</th>
+                    <th className="py-3 px-3 border border-[#222222]">Nama Lengkap</th>
+                    <th className="py-3 px-3 border border-[#222222] text-center">Kelas</th>
+                    <th className="py-3 px-3 border border-[#222222] text-center">Hadir (H)</th>
+                    <th className="py-3 px-3 border border-[#222222] text-center">Izin (I)</th>
+                    <th className="py-3 px-3 border border-[#222222] text-center">Alpha (A)</th>
+                    <th className="py-3 px-3 border border-[#222222] text-center">Persentase</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reportData.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="py-8 text-center text-[#6a6a6a]">
+                        Belum ada data absensi pada periode ini.
+                      </td>
+                    </tr>
+                  ) : (
+                    reportData.map((row, idx) => (
+                      <tr key={idx} className="border border-[#222222]">
+                        <td className="py-2 px-3 border border-[#222222] text-center">{row.no}</td>
+                        <td className="py-2 px-3 border border-[#222222] font-mono">{row.studentCode}</td>
+                        <td className="py-2 px-3 border border-[#222222]">{row.username}</td>
+                        <td className="py-2 px-3 border border-[#222222] font-semibold">{row.name}</td>
+                        <td className="py-2 px-3 border border-[#222222] text-center">{row.classGroup}</td>
+                        <td className="py-2 px-3 border border-[#222222] text-center">{row.hadir}</td>
+                        <td className="py-2 px-3 border border-[#222222] text-center">{row.izin}</td>
+                        <td className="py-2 px-3 border border-[#222222] text-center">{row.alpha}</td>
+                        <td className="py-2 px-3 border border-[#222222] text-center font-bold text-[#ff385c]">
+                          {row.percentage}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Print Signatures */}
+            <div className="mt-8 pt-8 border-t border-[#ebebeb] hidden print:flex justify-between items-end text-sm text-[#222222]">
+              <div className="text-center">
+                <p>Mengetahui,</p>
+                <p className="font-bold mt-16">Admin Utama LMS</p>
+                <p className="text-xs text-[#6a6a6a]">SDN 231 Sukaasih</p>
+              </div>
+              <div className="text-center">
+                <p>Bandung, {new Date().toLocaleDateString("id-ID")}</p>
+                <p className="font-bold mt-16">Dicetak Oleh</p>
+                <p className="text-xs text-[#6a6a6a]">Sistem Admin</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

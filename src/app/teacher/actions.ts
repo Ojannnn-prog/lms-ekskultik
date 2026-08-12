@@ -151,7 +151,7 @@ export async function updateStudentAttendanceManual(studentId: string, status: s
 }
 
 // 3. LAPORAN BULANAN RESMI SDN 231 SUKAASIH (LANDSCAPE 9 KOLOM) UNTUK KELAS PENGAMPU
-export async function getTeacherMonthlyReport(month: number, year: number) {
+export async function getTeacherMonthlyReport(startMonth: number, endMonth: number, year: number) {
   const user = await requireTeacher();
   const classGroup = user.classGroup || "5";
 
@@ -162,8 +162,8 @@ export async function getTeacherMonthlyReport(month: number, year: number) {
       attendances: {
         where: {
           timestamp: {
-            gte: new Date(year, month - 1, 1),
-            lte: new Date(year, month, 0, 23, 59, 59),
+            gte: new Date(year, startMonth - 1, 1),
+            lte: new Date(year, endMonth, 0, 23, 59, 59),
           },
         },
       },

@@ -10,6 +10,8 @@ import {
   KeyRound,
   Sparkles,
   Users,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useNotificationModal } from "@/providers/NotificationProvider";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -46,11 +48,13 @@ export default function AdminTeachersPage() {
   const [nip, setNip] = useState("");
   const [classGroup, setClassGroup] = useState("5");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Form Reset Password Modal
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [resetId, setResetId] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   // Confirm Delete Modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -386,13 +390,23 @@ export default function AdminTeachersPage() {
                   <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
                     {t("admin.teacher.passwordLabel")}
                   </label>
-                  <input
-                    type="text"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Default: pembina123"
-                    className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd]"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Default: pembina123"
+                      className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd] pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#6a6a6a] hover:text-[#222222]"
+                      title={showPassword ? "Sembunyikan password" : "Lihat password"}
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -428,14 +442,24 @@ export default function AdminTeachersPage() {
                 <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-1">
                   {t("admin.teacher.newPasswordLabel")}
                 </label>
-                <input
-                  type="text"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Masukkan kata sandi baru..."
-                  className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd]"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Contoh: guruHebat2026"
+                    className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-2.5 border border-[#dddddd] pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#6a6a6a] hover:text-[#222222]"
+                    title={showNewPassword ? "Sembunyikan password" : "Lihat password"}
+                  >
+                    {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#ebebeb]">
                 <button

@@ -288,6 +288,19 @@ export default function Navbar({ user }: NavbarProps) {
                 );
               })}
 
+              {user.role === "admin" && (
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setShowAdminSettings(true);
+                  }}
+                  className="flex items-center gap-3 px-3 py-3 text-sm font-semibold rounded-xl text-[#222222] hover:bg-[#f7f7f7] transition-colors w-full text-left"
+                >
+                  <Settings className="w-5 h-5 text-[#6a6a6a]" />
+                  <span>Pengaturan</span>
+                </button>
+              )}
+
               <button
                 onClick={() => {
                   setIsMobileMenuOpen(false);

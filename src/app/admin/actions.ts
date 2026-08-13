@@ -181,7 +181,7 @@ export async function createStudent(data: {
   password?: string;
 }) {
   await requireAdmin();
-  const hashedPassword = await hashPassword(data.password || "siswa123");
+  const hashedPassword = await hashPassword(data.password || "231Sukaasih");
   const created = await prisma.student.create({
     data: {
       username: data.username,
@@ -247,6 +247,26 @@ export async function deleteStudent(id: string) {
   await prisma.student.delete({ where: { id } });
   revalidatePath("/admin/student");
   return { success: true };
+}
+
+export async function bulkDeleteStudents(studentIds: string[]) {
+  await requireAdmin();
+  await prisma.student.deleteMany({
+    where: { id: { in: studentIds } },
+  });
+  revalidatePath("/admin/student");
+  return { success: true, count: studentIds.length };
+}
+
+export async function bulkResetPassword(studentIds: string[]) {
+  await requireAdmin();
+  const hashedPassword = await hashPassword("231Sukaasih");
+  await prisma.student.updateMany({
+    where: { id: { in: studentIds } },
+    data: { password: hashedPassword },
+  });
+  revalidatePath("/admin/student");
+  return { success: true, count: studentIds.length };
 }
 
 export async function bulkMoveStudentClass(studentIds: string[], targetClassGroup: string) {
@@ -315,7 +335,7 @@ export async function importStudentsFromExcel(
   }>
 ) {
   await requireAdmin();
-  const hashedPassword = await hashPassword("siswa123");
+  const hashedPassword = await hashPassword("231Sukaasih");
   let count = 0;
   for (const st of students) {
     await prisma.student.upsert({

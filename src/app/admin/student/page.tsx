@@ -34,6 +34,8 @@ import {
   importStudentsFromExcel,
   resetStudentCredentials,
   getAdminMonthlyReport,
+  bulkDeleteStudents,
+  bulkResetPassword,
 } from "../actions";
 
 interface StudentItem {
@@ -54,10 +56,13 @@ export default function AdminStudentsPage() {
   const [loading, setLoading] = useState(true);
   const [filterClass, setFilterClass] = useState("ALL");
 
-  // Selection state untuk bulk move
+  // Selection state untuk bulk actions
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [targetMoveClass, setTargetMoveClass] = useState("6");
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+  const [confirmBulkDeleteText, setConfirmBulkDeleteText] = useState("");
+  const [isBulkResetModalOpen, setIsBulkResetModalOpen] = useState(false);
 
   // KTA QR Modal
   const [selectedStudentQR, setSelectedStudentQR] = useState<StudentItem | null>(null);
@@ -122,7 +127,7 @@ export default function AdminStudentsPage() {
 
   const openAddModal = () => {
     setEditingId(null);
-    setUsername("");
+    setUsername(`absen${students.length + 1}`);
     setOriginalUsername(null);
     setName("");
     setStudentCode("");
@@ -238,6 +243,39 @@ export default function AdminStudentsPage() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (confirmBulkDeleteText !== "HAPUS") {
+      show({ type: "error", title: "Gagal", description: "Ketik HAPUS untuk mengkonfirmasi.", autoCloseDelay: 1500 });
+      return;
+    }
+    try {
+      await bulkDeleteStudents(selectedIds);
+      show({ type: "success", title: t("admin.student.success"), autoCloseDelay: 1500, description: 
+        `Berhasil menghapus ${selectedIds.length} data siswa.`
+      });
+      setIsBulkDeleteModalOpen(false);
+      setConfirmBulkDeleteText("");
+      loadStudents();
+    } catch {
+      show({ type: "error", title: t("admin.student.failed"), description: "Gagal menghapus data secara massal.", autoCloseDelay: 1500 });
+    }
+  };
+
+  const handleBulkResetPassword = async () => {
+    if (selectedIds.length === 0) return;
+    try {
+      await bulkResetPassword(selectedIds);
+      show({ type: "success", title: t("admin.student.success"), autoCloseDelay: 1500, description: 
+        `Berhasil mereset kata sandi untuk ${selectedIds.length} siswa.`
+      });
+      setIsBulkResetModalOpen(false);
+      loadStudents();
+    } catch {
+      show({ type: "error", title: t("admin.student.failed"), description: "Gagal mereset kata sandi secara massal.", autoCloseDelay: 1500 });
+    }
+  };
+
   const handleExportExcel = () => {
     if (students.length === 0) {
       show({ type: "error", title: t("admin.student.failed"), description: t("admin.student.exportNoData"), autoCloseDelay: 1500 });
@@ -247,6 +285,7 @@ export default function AdminStudentsPage() {
       No: i + 1,
       NIS: s.studentCode,
       Username: s.username,
+      Password: "231Sukaasih",
       "Nama Lengkap": s.name,
       "Kelas": s.classGroup,
       "Jenis Kelamin": s.gender === "L" ? "Laki-laki" : "Perempuan",
@@ -266,16 +305,15 @@ export default function AdminStudentsPage() {
   };
 
   const handleDownloadTemplate = () => {
-    const templateData = [
-      {
-        NIS: "123456",
-        Username: "siswa_123456",
-        "Nama Lengkap": "Contoh Nama Siswa",
-        "Kelas": "5",
-        "Jenis Kelamin": "L",
-        "Tempat Lahir": "Bandung",
-      },
-    ];
+    const templateData = Array.from({ length: 20 }, (_, i) => ({
+      NIS: `1234${i + 1 < 10 ? '0' + (i + 1) : i + 1}`,
+      Username: `absen${i + 1}`,
+      Password: "231Sukaasih",
+      "Nama Lengkap": `Siswa Ke-${i + 1}`,
+      "Kelas": "5",
+      "Jenis Kelamin": i % 2 === 0 ? "L" : "P",
+      "Tempat Lahir": "Bandung",
+    }));
     const worksheet = XLSX.utils.json_to_sheet(templateData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Template Siswa");
@@ -402,11 +440,21 @@ export default function AdminStudentsPage() {
           {/* Export Excel */}
           <button
             onClick={handleExportExcel}
-            className="bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-semibold text-xs px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto"
+            className="print:hidden bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-semibold text-xs px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto"
           >
             <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ff385c]" />
             <span className="hidden sm:inline">{t("admin.student.exportBtn")}</span>
             <span className="sm:hidden">{t("admin.student.exportBtnMobile")}</span>
+          </button>
+
+          {/* Cetak PDF Data Siswa */}
+          <button
+            onClick={() => window.print()}
+            className="print:hidden bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-semibold text-xs px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto"
+          >
+            <Printer className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ff385c]" />
+            <span className="hidden sm:inline">Cetak PDF Data</span>
+            <span className="sm:hidden">Cetak Data</span>
           </button>
 
           {/* Import Excel */}
@@ -435,7 +483,7 @@ export default function AdminStudentsPage() {
           {/* Tambah Siswa */}
           <button
             onClick={openAddModal}
-            className="col-span-2 sm:col-span-1 bg-[#ff385c] hover:bg-[#e00b41] text-white font-semibold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg transition-colors airbnb-shadow-sm flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+            className="print:hidden col-span-2 sm:col-span-1 bg-[#ff385c] hover:bg-[#e00b41] text-white font-semibold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg transition-colors airbnb-shadow-sm flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
           >
             <Plus className="w-4 h-4" />
             <span>{t("admin.student.addBtn")}</span>
@@ -443,8 +491,13 @@ export default function AdminStudentsPage() {
         </div>
       </div>
 
+      <div className="hidden print:block mb-6">
+        <h2 className="text-2xl font-bold">Data Siswa Ekskul TIK</h2>
+        <p className="text-sm">Filter Kelas: {filterClass === "ALL" ? "Semua Kelas" : `Kelas ${filterClass}`}</p>
+      </div>
+
       {/* Bar Filter {t("admin.student.classLabel")} & Action Bulk */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#f7f7f7] p-4 rounded-xl border border-[#ebebeb]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#f7f7f7] p-4 rounded-xl border border-[#ebebeb] print:hidden">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-[#6a6a6a]" />
           <span className="text-xs font-semibold uppercase text-[#6a6a6a]">
@@ -469,7 +522,7 @@ export default function AdminStudentsPage() {
 
         {/* Action Pindah {t("admin.student.classLabel")} Massal (Bulk Move) */}
         {selectedIds.length > 0 && (
-          <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-[#dddddd] airbnb-shadow-sm">
+          <div className="flex flex-wrap items-center gap-3 bg-white px-4 py-2 rounded-lg border border-[#dddddd] airbnb-shadow-sm">
             <span className="text-xs font-bold text-[#ff385c]">
               {selectedIds.length} {t("admin.student.selectedStudents")}
             </span>
@@ -480,12 +533,26 @@ export default function AdminStudentsPage() {
               <ArrowRightLeft className="w-3.5 h-3.5" />
               <span>{t("admin.student.bulkMoveBtn")}</span>
             </button>
+            <button
+              onClick={() => setIsBulkResetModalOpen(true)}
+              className="bg-white border border-[#222222] hover:bg-[#f7f7f7] text-[#222222] text-xs font-semibold px-3 py-1.5 rounded-md flex items-center gap-1.5 cursor-pointer"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Reset Password</span>
+            </button>
+            <button
+              onClick={() => setIsBulkDeleteModalOpen(true)}
+              className="bg-[#ff385c] hover:bg-[#e00b41] text-white text-xs font-semibold px-3 py-1.5 rounded-md flex items-center gap-1.5 cursor-pointer"
+            >
+              <Square className="w-3.5 h-3.5" />
+              <span>Hapus Massal</span>
+            </button>
           </div>
         )}
       </div>
 
-      {/* Tabel Siswa Ekskul TIK */}
-      <div className="bg-white border border-[#dddddd] rounded-2xl overflow-hidden airbnb-shadow-sm">
+      {/* Tabel Siswa Ekskul TIK (Interactive, Hidden in Print) */}
+      <div className="bg-white border border-[#dddddd] rounded-2xl overflow-hidden airbnb-shadow-sm print:hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -597,6 +664,52 @@ export default function AdminStudentsPage() {
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* TABEL KHUSUS CETAK PDF (Hanya Tampil Saat Print) */}
+      <div className="hidden print:block">
+        <table className="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr className="bg-[#f7f7f7] border border-[#222222] text-[#222222] uppercase">
+              <th className="py-2 px-2 border border-[#222222]">No</th>
+              <th className="py-2 px-2 border border-[#222222]">NIS</th>
+              <th className="py-2 px-2 border border-[#222222]">Nama Lengkap</th>
+              <th className="py-2 px-2 border border-[#222222] text-center">Kelas</th>
+              <th className="py-2 px-2 border border-[#222222]">Username Login</th>
+              <th className="py-2 px-2 border border-[#222222]">Password Login</th>
+            </tr>
+          </thead>
+          <tbody>
+            {students.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="py-8 text-center text-[#6a6a6a]">Belum ada data siswa.</td>
+              </tr>
+            ) : (
+              students.map((st, idx) => (
+                <tr key={st.id}>
+                  <td className="py-2 px-2 border border-[#222222] text-center">{idx + 1}</td>
+                  <td className="py-2 px-2 border border-[#222222]">{st.studentCode}</td>
+                  <td className="py-2 px-2 border border-[#222222] font-semibold">{st.name}</td>
+                  <td className="py-2 px-2 border border-[#222222] text-center">{st.classGroup}</td>
+                  <td className="py-2 px-2 border border-[#222222] font-mono">{st.username}</td>
+                  <td className="py-2 px-2 border border-[#222222] font-mono">231Sukaasih</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+        <div className="mt-8 pt-8 border-t border-[#ebebeb] flex justify-between items-end text-sm text-[#222222]">
+          <div className="text-center">
+            <p>Mengetahui,</p>
+            <p className="font-bold mt-16">Admin Utama LMS</p>
+            <p className="text-xs text-[#6a6a6a]">SDN 231 Sukaasih</p>
+          </div>
+          <div className="text-center">
+            <p>Bandung, {new Date().toLocaleDateString("id-ID")}</p>
+            <p className="font-bold mt-16">Dicetak Oleh</p>
+            <p className="text-xs text-[#6a6a6a]">Sistem Admin</p>
+          </div>
         </div>
       </div>
 
@@ -791,6 +904,60 @@ export default function AdminStudentsPage() {
           </div>
         </div>
       )}
+
+      {/* Modal Hapus Massal (Double Confirm) */}
+      {isBulkDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 border border-[#dddddd] airbnb-shadow">
+            <h3 className="text-lg font-bold text-[#ff385c] mb-2">
+              ⚠️ Peringatan Keras: Hapus {selectedIds.length} Siswa
+            </h3>
+            <p className="text-sm text-[#222222] mb-4">
+              Anda akan <b>menghapus permanen</b> {selectedIds.length} data siswa beserta seluruh riwayat poin dan absensinya. Operasi ini tidak dapat dibatalkan.
+            </p>
+            <div className="mb-6">
+              <label className="block text-xs font-semibold text-[#222222] uppercase tracking-wider mb-2">
+                Ketik "HAPUS" untuk konfirmasi:
+              </label>
+              <input
+                type="text"
+                value={confirmBulkDeleteText}
+                onChange={(e) => setConfirmBulkDeleteText(e.target.value)}
+                placeholder="HAPUS"
+                className="w-full bg-[#f7f7f7] text-sm text-[#222222] rounded-lg px-3.5 py-3 border border-[#dddddd]"
+              />
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => {
+                  setIsBulkDeleteModalOpen(false);
+                  setConfirmBulkDeleteText("");
+                }}
+                className="px-5 py-2.5 text-sm font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-lg"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                disabled={confirmBulkDeleteText !== "HAPUS"}
+                className="px-5 py-2.5 text-sm font-semibold text-white bg-[#ff385c] hover:bg-[#e00b41] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg"
+              >
+                Konfirmasi Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Reset Password Massal */}
+      <ConfirmModal
+        isOpen={isBulkResetModalOpen}
+        onClose={() => setIsBulkResetModalOpen(false)}
+        onConfirm={handleBulkResetPassword}
+        title={`Reset Password ${selectedIds.length} Siswa?`}
+        description={`Anda akan mereset password untuk ${selectedIds.length} siswa menjadi "231Sukaasih". Apakah Anda yakin?`}
+        confirmText="Ya, Reset Password"
+      />
 
       {/* Modal KTA Digital QR Code */}
       <StudentQRCardModal

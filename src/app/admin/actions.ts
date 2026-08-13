@@ -561,3 +561,30 @@ export async function getMonthlyReportData(month: number, year: number, classGro
 
   return { success: true, records };
 }
+
+// 6. MANAJEMEN ADMIN
+export async function updateAdminCredentials(newUsername?: string, newPassword?: string) {
+  const user = await requireAdmin();
+  const dataToUpdate: any = {};
+  
+  if (newUsername && newUsername.trim() !== "") {
+    const existing = await prisma.admin.findFirst({
+      where: { username: newUsername, NOT: { id: user.id } }
+    });
+    if (existing) {
+      throw new Error("Username sudah digunakan");
+    }
+    dataToUpdate.username = newUsername;
+  }
+  
+  if (newPassword && newPassword.trim() !== "") {
+    dataToUpdate.password = await hashPassword(newPassword);
+  }
+  
+  if (Object.keys(dataToUpdate).length > 0) {
+    await prisma.admin.update({
+      where: { id: user.id },
+      data: dataToUpdate,
+    });
+  }
+}

@@ -243,6 +243,72 @@ export default function AdminStudentsPage() {
     }
   };
 
+  const handleExportPDFData = () => {
+    import("jspdf").then((jsPDF) => {
+      import("jspdf-autotable").then(({ default: autoTable }) => {
+        const doc = new jsPDF.default();
+        doc.setFontSize(16);
+        doc.text("Data Siswa Ekskul TIK", 14, 15);
+        doc.setFontSize(11);
+        doc.text(`Filter Kelas: ${filterClass === "ALL" ? "Semua Kelas" : 'Kelas ' + filterClass}`, 14, 22);
+
+        const tableData = students.map((s, i) => [
+          i + 1,
+          s.studentCode,
+          s.name,
+          s.classGroup,
+          s.username,
+          "231Sukaasih"
+        ]);
+
+        autoTable(doc, {
+          head: [["No", "NIS", "NAMA LENGKAP", "KELAS", "USERNAME LOGIN", "PASSWORD LOGIN"]],
+          body: tableData,
+          startY: 28,
+          styles: { fontSize: 9 },
+          headStyles: { fillColor: [255, 56, 92] } // Pink Airbnb
+        });
+
+        doc.save(`Data_Siswa_TIK_${filterClass}.pdf`);
+      });
+    });
+  };
+
+  const handleExportReportPDF = () => {
+    import("jspdf").then((jsPDF) => {
+      import("jspdf-autotable").then(({ default: autoTable }) => {
+        const doc = new jsPDF.default();
+        doc.setFontSize(16);
+        doc.text("Laporan Kehadiran Bulanan Ekskul TIK", 14, 15);
+        doc.setFontSize(11);
+        doc.text(`Periode: Bulan ${reportMonthStart} - ${reportMonthEnd} Tahun ${reportYear}`, 14, 22);
+        doc.text(`Kelas: ${filterClass === "ALL" ? "Semua Kelas" : 'Kelas ' + filterClass}`, 14, 28);
+
+        const tableData = reportData.map((row) => [
+          row.no,
+          row.studentCode,
+          row.username,
+          row.name,
+          row.classGroup,
+          row.hadir,
+          row.izin,
+          row.alpha,
+          row.percentage,
+        ]);
+
+        autoTable(doc, {
+          head: [["No", "NIS", "Username", "Nama Lengkap", "Kelas", "Hadir (H)", "Izin (I)", "Alpha (A)", "Persentase"]],
+          body: tableData,
+          startY: 34,
+          styles: { fontSize: 9 },
+          headStyles: { fillColor: [34, 34, 34] } // Dark Airbnb
+        });
+
+        doc.save(`Laporan_Kehadiran_TIK_${reportMonthStart}-${reportMonthEnd}_${reportYear}.pdf`);
+      });
+    });
+  };
+
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
     if (confirmBulkDeleteText !== "HAPUS") {
@@ -449,7 +515,7 @@ export default function AdminStudentsPage() {
 
           {/* Cetak PDF Data Siswa */}
           <button
-            onClick={() => window.print()}
+            onClick={handleExportPDFData}
             className="print:hidden bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-semibold text-xs px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto"
           >
             <Printer className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ff385c]" />
@@ -1044,7 +1110,7 @@ export default function AdminStudentsPage() {
                   <span className="sm:hidden">Excel</span>
                 </button>
                 <button
-                  onClick={() => window.print()}
+                  onClick={handleExportReportPDF}
                   className="bg-[#ff385c] hover:bg-[#e00b41] text-white px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Printer className="w-4 h-4" />

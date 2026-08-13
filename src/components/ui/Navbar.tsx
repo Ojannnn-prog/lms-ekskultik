@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Sparkles, LogOut, BookOpen, Users, QrCode, Award, UserCheck, Menu, X } from "lucide-react";
+import { Sparkles, LogOut, BookOpen, Users, QrCode, Award, UserCheck, Menu, X, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { useNotificationModal } from "@/providers/NotificationProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { updateAdminCredentials } from "@/app/admin/actions";
 
 interface NavbarProps {
   user: {
@@ -33,6 +34,36 @@ export default function Navbar({ user }: NavbarProps) {
 
   // Bahasa
   const { locale, setLocale, t } = useLanguage();
+
+  // Admin Settings
+  const [showAdminSettings, setShowAdminSettings] = useState(false);
+  const [adminUsername, setAdminUsername] = useState(user.username);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isSavingAdmin, setIsSavingAdmin] = useState(false);
+
+  const handleSaveAdminSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingAdmin(true);
+    try {
+      await updateAdminCredentials(adminUsername, adminPassword);
+      show({
+        type: "success",
+        title: "Pengaturan Tersimpan",
+        description: "Username / Password admin berhasil diperbarui.",
+        autoCloseDelay: 2000,
+      });
+      setShowAdminSettings(false);
+      setAdminPassword(""); // reset
+    } catch (error: any) {
+      show({
+        type: "error",
+        title: "Gagal Menyimpan",
+        description: error.message || "Terjadi kesalahan saat menyimpan pengaturan.",
+      });
+    } finally {
+      setIsSavingAdmin(false);
+    }
+  };
 
   const handleLogoutConfirm = async () => {
     setShowConfirmLogout(false);
@@ -167,6 +198,17 @@ export default function Navbar({ user }: NavbarProps) {
               <span className="hidden sm:block">{locale === "id" ? "ID" : "EN"}</span>
             </button>
 
+            {user.role === "admin" && (
+              <button
+                onClick={() => setShowAdminSettings(true)}
+                className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-full hover:border-[#222222] hover:bg-[#f7f7f7] transition-all duration-150 airbnb-shadow-sm cursor-pointer shrink-0 whitespace-nowrap"
+                title="Pengaturan Akun Admin"
+              >
+                <Settings className="w-3.5 h-3.5 text-[#222222]" />
+                <span>Pengaturan</span>
+              </button>
+            )}
+
             <button
               onClick={() => setShowConfirmLogout(true)}
               className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-[#222222] bg-white border border-[#dddddd] rounded-full hover:border-[#222222] hover:bg-[#f7f7f7] transition-all duration-150 airbnb-shadow-sm cursor-pointer shrink-0 whitespace-nowrap"
@@ -251,7 +293,7 @@ export default function Navbar({ user }: NavbarProps) {
                   setIsMobileMenuOpen(false);
                   setShowConfirmLogout(true);
                 }}
-                className="flex items-center gap-3 px-3 py-3 mt-2 text-sm font-semibold rounded-xl text-[#ff385c] hover:bg-[#fff8f6] transition-colors text-left"
+                className="flex items-center gap-3 px-3 py-3 text-sm font-semibold rounded-xl text-red-600 hover:bg-red-50 transition-colors w-full text-left"
               >
                 <LogOut className="w-5 h-5" />
                 <span>{t("common.logout")}</span>
@@ -261,7 +303,66 @@ export default function Navbar({ user }: NavbarProps) {
         )}
       </AnimatePresence>
 
-      {/* Modal Konfirmasi Keluar */}
+      {/* Modal Admin Settings */}
+      <AnimatePresence>
+        {showAdminSettings && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-md airbnb-shadow"
+            >
+              <h2 className="text-xl font-bold text-[#222222] mb-4">Pengaturan Akun Admin</h2>
+              <form onSubmit={handleSaveAdminSettings}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-[#222222] mb-1">
+                      Username Baru
+                    </label>
+                    <input
+                      type="text"
+                      value={adminUsername}
+                      onChange={(e) => setAdminUsername(e.target.value)}
+                      className="w-full bg-[#f7f7f7] border border-[#dddddd] px-4 py-2.5 rounded-xl text-sm focus:border-[#222222] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-[#222222] mb-1">
+                      Password Baru <span className="text-[#6a6a6a] font-normal">(opsional)</span>
+                    </label>
+                    <input
+                      type="password"
+                      value={adminPassword}
+                      onChange={(e) => setAdminPassword(e.target.value)}
+                      placeholder="Kosongkan jika tidak ingin diubah"
+                      className="w-full bg-[#f7f7f7] border border-[#dddddd] px-4 py-2.5 rounded-xl text-sm focus:border-[#222222] outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-8">
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminSettings(false)}
+                    className="flex-1 bg-white border border-[#dddddd] hover:bg-[#f7f7f7] text-[#222222] font-semibold py-3 rounded-xl transition-colors"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingAdmin}
+                    className="flex-1 bg-[#222222] hover:bg-[#ff385c] text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
+                  >
+                    {isSavingAdmin ? "Menyimpan..." : "Simpan"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal Konfirmasi Logout */}
       <ConfirmModal
         isOpen={showConfirmLogout}
         onClose={() => setShowConfirmLogout(false)}

@@ -12,6 +12,7 @@ import {
   AlertCircle,
   TrendingUp,
   ArrowRight,
+  Gamepad2,
 } from "lucide-react";
 import { useNotificationModal } from "@/providers/NotificationProvider";
 import StudentQRCardModal from "@/components/ui/StudentQRCardModal";
@@ -188,6 +189,27 @@ export default function StudentDashboardPage() {
             <BookOpen className="w-6 h-6 text-[#ff385c]" />
           </Link>
         </div>
+      </div>
+
+      {/* Banner AI Lab (Baru) */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-6 sm:p-8 airbnb-shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
+        <div>
+          <div className="inline-flex items-center gap-1.5 bg-white px-3 py-1 rounded-full mb-3 border border-blue-200">
+            <span className="text-xl">🤖</span>
+            <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Fitur Baru</span>
+          </div>
+          <h2 className="text-2xl font-bold text-[#222222] mb-2">Lab AI Klasifikasi Data</h2>
+          <p className="text-sm text-[#6a6a6a] max-w-xl leading-relaxed">
+            Bantu asisten robot kita belajar mengenali teknologi! Mainkan game drag-and-drop seru dan latih kecerdasan buatan ini.
+          </p>
+        </div>
+        <Link
+          href="/student/ai-lab"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl transition-colors whitespace-nowrap flex items-center gap-2 airbnb-shadow-sm w-full sm:w-auto justify-center"
+        >
+          <Gamepad2 className="w-5 h-5" />
+          Main Sekarang
+        </Link>
       </div>
 
       {/* Grid 2 Kolom: Lanjutkan Belajar & Pengumuman */}

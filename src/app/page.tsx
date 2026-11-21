@@ -651,9 +651,8 @@ export default function MasterLandingPage() {
               {/* ACTION BUTTONS */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
                 <a
-                  href="https://github.com/Ojannnn-prog/lms-ekskultik/actions"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/api/download-apk"
+                  download="EkskulTIK.apk"
                   className="inline-flex items-center justify-center gap-3 bg-[#ff385c] hover:bg-[#e00b41] text-white font-black text-sm sm:text-base px-6 py-4 rounded-2xl transition-all airbnb-shadow-md hover:airbnb-shadow cursor-pointer shadow-lg shadow-[#ff385c]/25 active:scale-[0.98]"
                 >
                   <Download className="w-5 h-5 animate-bounce" />
@@ -661,9 +660,8 @@ export default function MasterLandingPage() {
                 </a>
 
                 <a
-                  href="https://github.com/Ojannnn-prog/lms-ekskultik/releases"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="https://github.com/Ojannnn-prog/lms-ekskultik/releases/download/app-latest/EkskulTIK.apk"
+                  download="EkskulTIK.apk"
                   className="inline-flex items-center justify-center gap-2 bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-bold text-xs sm:text-sm px-5 py-4 rounded-2xl transition-all airbnb-shadow-sm hover:border-[#222222] cursor-pointer"
                 >
                   <ExternalLink className="w-4 h-4 text-[#6a6a6a]" />

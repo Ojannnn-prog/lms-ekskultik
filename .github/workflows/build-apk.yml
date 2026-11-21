@@ -53,3 +53,22 @@ jobs:
           name: EkskulTIK-APK
           path: android/app/build/outputs/apk/debug/EkskulTIK.apk
           retention-days: 30
+
+      - name: Create or Update GitHub Release with Direct APK
+        uses: softprops/action-gh-release@v2
+        if: success()
+        with:
+          tag_name: app-latest
+          name: "Ekskul TIK Android App v1.0.0"
+          body: |
+            ## Ekskul TIK Mobile App (Official Android APK)
+            Aplikasi Android Native Resmi LMS Ekskul TIK SDN 231 Sukaasih.
+            
+            - **Versi**: 1.0.0
+            - **Kompatibilitas**: Android 7.0 s/d 15
+            - **Direct Download**: Unduh file `EkskulTIK.apk` langsung ke perangkat Android Anda.
+          draft: false
+          prerelease: false
+          files: android/app/build/outputs/apk/debug/EkskulTIK.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

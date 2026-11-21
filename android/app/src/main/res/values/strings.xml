@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Ekskul TIK</string>
+    <string name="default_web_url">https://lms-ekskultik.vercel.app/</string>
+    <string name="error_no_connection_title">Koneksi Terputus</string>
+    <string name="error_no_connection_desc">Tidak dapat terhubung ke server LMS Ekskul TIK. Pastikan internet Anda aktif lalu coba lagi.</string>
+    <string name="error_retry">Coba Lagi</string>
+    <string name="exit_confirm_title">Keluar Aplikasi</string>
+    <string name="exit_confirm_desc">Apakah Anda yakin ingin keluar dari aplikasi Ekskul TIK?</string>
+    <string name="exit_yes">Ya, Keluar</string>
+    <string name="exit_no">Batal</string>
+    <string name="permission_camera_rationale">Aplikasi membutuhkan izin kamera untuk memindai QR Code Absensi.</string>
+</resources>

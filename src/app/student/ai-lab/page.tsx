@@ -37,6 +37,18 @@ export default function AILabPage() {
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
 
+  const speak = (text: string) => {
+    if (!isVoiceEnabled) return;
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel(); 
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "id-ID";
+      utterance.pitch = 1.3;
+      utterance.rate = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   const initGame = () => {
     setStatus("loading");
     setFeedback(null);
@@ -56,18 +68,6 @@ export default function AILabPage() {
   useEffect(() => {
     initGame();
   }, []);
-
-  const speak = (text: string) => {
-    if (!isVoiceEnabled) return;
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel(); 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "id-ID";
-      utterance.pitch = 1.3;
-      utterance.rate = 1.0;
-      window.speechSynthesis.speak(utterance);
-    }
-  };
 
   const handleClassify = (selectedType: "tech" | "non-tech") => {
     const currentItem = items[currentIndex];

@@ -16,6 +16,11 @@ import {
   FileText,
   CreditCard,
   Sparkles,
+  Smartphone,
+  Download,
+  ShieldCheck,
+  Camera,
+  HardDrive,
 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getPublicLeaderboard } from "@/app/actions";
@@ -81,6 +86,13 @@ export default function MasterLandingPage() {
               className="hover:text-[#222222] transition-colors"
             >
               {t("landing.nav.gamification")}
+            </a>
+            <a
+              href="#download-app"
+              className="hover:text-[#ff385c] text-[#ff385c] font-bold flex items-center gap-1.5 transition-colors"
+            >
+              <Smartphone className="w-4 h-4" />
+              <span>{t("landing.nav.downloadApp")}</span>
             </a>
             <a
               href="#pembina"
@@ -593,6 +605,152 @@ export default function MasterLandingPage() {
                     </div>
                   ))
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION MANDIRI: DOWNLOAD APLIKASI ANDROID NATIVE */}
+      <section
+        id="download-app"
+        className="py-16 sm:py-24 bg-gradient-to-b from-[#fff8f6] via-white to-white border-b border-[#ebebeb] overflow-hidden"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
+            {/* SISI KIRI: SHOWCASE APLIKASI & TOMBOL UNDUH */}
+            <div className="lg:col-span-6 space-y-6">
+              <div className="inline-flex items-center gap-2 bg-[#fff8f6] text-[#ff385c] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-[#ff385c]/20">
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>{t("landing.appDownload.badge")}</span>
+              </div>
+
+              <div className="flex items-center gap-4 sm:gap-5">
+                <div className="relative group shrink-0">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#ff385c] to-amber-500 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition duration-500" />
+                  <img
+                    src="/app-icon.jpg"
+                    alt="Logo Aplikasi Ekskul TIK Android"
+                    className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-white shadow-xl"
+                  />
+                </div>
+                <div>
+                  <h2 className="text-2xl sm:text-4xl font-black text-[#222222] tracking-tight leading-tight">
+                    {t("landing.appDownload.title")}{" "}
+                    <span className="text-[#ff385c] block sm:inline underline decoration-[#ff385c]/30 decoration-wavy">
+                      {t("landing.appDownload.highlight")}
+                    </span>
+                  </h2>
+                </div>
+              </div>
+
+              <p className="text-sm sm:text-base text-[#6a6a6a] leading-relaxed">
+                {t("landing.appDownload.desc")}
+              </p>
+
+              {/* ACTION BUTTONS */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                <a
+                  href="https://github.com/Ojannnn-prog/lms-ekskultik/actions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-3 bg-[#ff385c] hover:bg-[#e00b41] text-white font-black text-sm sm:text-base px-6 py-4 rounded-2xl transition-all airbnb-shadow-md hover:airbnb-shadow cursor-pointer shadow-lg shadow-[#ff385c]/25 active:scale-[0.98]"
+                >
+                  <Download className="w-5 h-5 animate-bounce" />
+                  <span>{t("landing.appDownload.btnDownload")}</span>
+                </a>
+
+                <a
+                  href="https://github.com/Ojannnn-prog/lms-ekskultik/releases"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 bg-white hover:bg-[#f7f7f7] text-[#222222] border border-[#dddddd] font-bold text-xs sm:text-sm px-5 py-4 rounded-2xl transition-all airbnb-shadow-sm hover:border-[#222222] cursor-pointer"
+                >
+                  <ExternalLink className="w-4 h-4 text-[#6a6a6a]" />
+                  <span>{t("landing.appDownload.btnGithub")}</span>
+                </a>
+              </div>
+
+              {/* METADATA INFO */}
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#6a6a6a] pt-1">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{t("landing.appDownload.fileInfo")}</span>
+              </div>
+
+              {/* PANDUAN CEPAT INSTALASI */}
+              <div className="p-4 sm:p-5 bg-white rounded-2xl border border-[#ebebeb] airbnb-shadow-sm space-y-2 mt-4">
+                <p className="text-xs font-extrabold uppercase tracking-wider text-[#222222]">
+                  {t("landing.appDownload.guideTitle")}
+                </p>
+                <ul className="text-xs text-[#6a6a6a] space-y-1.5 leading-relaxed">
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#ff385c] shrink-0 mt-1.5" />
+                    <span>{t("landing.appDownload.step1")}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#ff385c] shrink-0 mt-1.5" />
+                    <span>{t("landing.appDownload.step2")}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#ff385c] shrink-0 mt-1.5" />
+                    <span>{t("landing.appDownload.step3")}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* SISI KANAN: 4 FITUR & KEUNGGULAN APLIKASI */}
+            <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* FITUR 1 */}
+              <div className="p-5 bg-white rounded-2xl border border-[#ebebeb] airbnb-shadow-sm hover:border-[#ff385c]/40 transition-all space-y-3 group">
+                <div className="w-10 h-10 rounded-xl bg-[#fff8f6] text-[#ff385c] flex items-center justify-center border border-[#ff385c]/20 group-hover:bg-[#ff385c] group-hover:text-white transition-colors">
+                  <Camera className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-extrabold text-[#222222]">
+                  {t("landing.appDownload.feature1Title")}
+                </h3>
+                <p className="text-xs text-[#6a6a6a] leading-relaxed">
+                  {t("landing.appDownload.feature1Desc")}
+                </p>
+              </div>
+
+              {/* FITUR 2 */}
+              <div className="p-5 bg-white rounded-2xl border border-[#ebebeb] airbnb-shadow-sm hover:border-[#ff385c]/40 transition-all space-y-3 group">
+                <div className="w-10 h-10 rounded-xl bg-[#fff8f6] text-[#ff385c] flex items-center justify-center border border-[#ff385c]/20 group-hover:bg-[#ff385c] group-hover:text-white transition-colors">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-extrabold text-[#222222]">
+                  {t("landing.appDownload.feature2Title")}
+                </h3>
+                <p className="text-xs text-[#6a6a6a] leading-relaxed">
+                  {t("landing.appDownload.feature2Desc")}
+                </p>
+              </div>
+
+              {/* FITUR 3 */}
+              <div className="p-5 bg-white rounded-2xl border border-[#ebebeb] airbnb-shadow-sm hover:border-[#ff385c]/40 transition-all space-y-3 group">
+                <div className="w-10 h-10 rounded-xl bg-[#fff8f6] text-[#ff385c] flex items-center justify-center border border-[#ff385c]/20 group-hover:bg-[#ff385c] group-hover:text-white transition-colors">
+                  <HardDrive className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-extrabold text-[#222222]">
+                  {t("landing.appDownload.feature3Title")}
+                </h3>
+                <p className="text-xs text-[#6a6a6a] leading-relaxed">
+                  {t("landing.appDownload.feature3Desc")}
+                </p>
+              </div>
+
+              {/* FITUR 4 */}
+              <div className="p-5 bg-white rounded-2xl border border-[#ebebeb] airbnb-shadow-sm hover:border-[#ff385c]/40 transition-all space-y-3 group">
+                <div className="w-10 h-10 rounded-xl bg-[#fff8f6] text-[#ff385c] flex items-center justify-center border border-[#ff385c]/20 group-hover:bg-[#ff385c] group-hover:text-white transition-colors">
+                  <Smartphone className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-extrabold text-[#222222]">
+                  {t("landing.appDownload.feature4Title")}
+                </h3>
+                <p className="text-xs text-[#6a6a6a] leading-relaxed">
+                  {t("landing.appDownload.feature4Desc")}
+                </p>
               </div>
             </div>
           </div>
